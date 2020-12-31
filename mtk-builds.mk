@@ -13,4 +13,5 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     libaudioprimarydevicehalifclient \
     android.hardware.audio@5.0-impl-mediatek \
+    android.hardware.power@1.3-impl-mediatek \
     android.hardware.audio@5.0-service-mediatek
