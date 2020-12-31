@@ -8,3 +8,9 @@
 PRODUCT_PACKAGES += \
     libladder \
     libudf
+
+# hardware
+PRODUCT_PACKAGES += \
+    libaudioprimarydevicehalifclient \
+    android.hardware.audio@5.0-impl-mediatek \
+    android.hardware.audio@5.0-service-mediatek
