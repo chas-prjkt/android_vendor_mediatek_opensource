@@ -14,6 +14,8 @@ PRODUCT_PACKAGES += \
     libpowerhal \
     libmtkperf_client \
     libpowerhalwrap_vendor \
+    power_legacy_test_v_1_0 \
+    power_native_test_v_1_0 \
     libmtkperf_client_vendor \
     libaudioprimarydevicehalifclient \
     vendor.mediatek.hardware.power@2.1-impl \
