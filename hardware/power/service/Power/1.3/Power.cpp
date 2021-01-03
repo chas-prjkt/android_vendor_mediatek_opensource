@@ -55,6 +55,13 @@ enum sub_spm {
 static int suspend_count = 0;
 struct timespec suspend_t;
 
+struct input_event {
+	struct timeval time;
+	__u16 type;
+	__u16 code;
+	__s32 value;
+};
+
 Power::Power() {}
 
 Power::~Power() {}
@@ -225,6 +232,30 @@ Return<void> Power::setFeature(Feature feature, bool activate)  {
                 activate ? 1 : 0);
 #else
     ALOGI("setFeature feature:%d, feature:%d", (int)feature, (int)activate);
+    switch (feature) {
+        case Feature::POWER_FEATURE_DOUBLE_TAP_TO_WAKE: {
+            int fd;
+            ssize_t ret;
+            struct input_event event;
+            fd = open("/dev/input/event2", O_RDWR);
+            if (fd < 0) {
+                ALOGI("setFeature feature:%d; failed to open fd", (int)feature);
+                break;
+            }
+            memset(&event, 0, sizeof(event));
+            event.type = 0;
+            event.code = 1;
+            event.value = activate ? 5 : 4;
+            ret = write(fd, &event, sizeof(event));
+            if (ret < (ssize_t) sizeof(event)) {
+                ALOGI("setFeature feature:%d; failed to write event", (int)feature);
+            }
+	    break;
+        }
+        default:
+            break;
+    }
+
 #endif
     return Void();
 }
