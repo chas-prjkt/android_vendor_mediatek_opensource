@@ -7,7 +7,8 @@
 # External
 PRODUCT_PACKAGES += \
     libladder \
-    libudf
+    libudf \
+    libmtkaudio_utils \
 
 # hardware
 PRODUCT_PACKAGES += \
@@ -18,6 +19,7 @@ PRODUCT_PACKAGES += \
     powerscntbl.xml \
     libmtkperf_client \
     powercontable.xml \
+    libmtkaudio_utils \
     libpowerhalwrap_vendor \
     power_whitelist_cfg.xml \
     power_legacy_test_v_1_0 \
