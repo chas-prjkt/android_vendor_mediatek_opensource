@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# Call ProjectConfig For Begonia
+$(call inherit-product, vendor/mediatek/opensource/BegoniaConfig.mk)
+
 # External
 PRODUCT_PACKAGES += \
     libladder \
