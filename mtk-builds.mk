@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# Call Interfaces (vendor)
+$(call inherit-product, vendor/mediatek/opensource/mtk-interfaces.mk)
+
 # Call ProjectConfig For Begonia
 $(call inherit-product, vendor/mediatek/opensource/BegoniaConfig.mk)
 
