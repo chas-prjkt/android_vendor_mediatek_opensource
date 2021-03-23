@@ -27,9 +27,7 @@
 #include <hardware/audio.h>
 #include <hardware/audio_effect.h>
 #include <media/TypeConverter.h>
-#include <utils/SortedVector.h>
-#include <utils/Vector.h>
-#include <vector>
+#include <media/AudioContainers.h>
 
 namespace android {
 namespace hardware {
@@ -92,20 +90,11 @@ Return<void> Stream::getSupportedSampleRates(AudioFormat format,
     Result result =
         getParam(AudioParameter::keyStreamSupportedSamplingRates, &halListValue, context);
     hidl_vec<uint32_t> sampleRates;
-#if !(PLATFORM_VERSION == 11)
-    SortedVector<uint32_t> halSampleRates;
-#else
-    std::set<uint32_t> halSampleRates;
-#endif
+    SampleRateSet halSampleRates;
     if (result == Result::OK) {
         halSampleRates =
             samplingRatesFromString(halListValue.string(), AudioParameter::valueListSeparator);
-#if !(PLATFORM_VERSION == 11)
-        sampleRates.setToExternal(halSampleRates.editArray(), halSampleRates.size());
-#else
-        std::vector<uint32_t> v(halSampleRates.begin(), halSampleRates.end());
-        sampleRates.setToExternal(v.data(), halSampleRates.size());
-#endif
+        sampleRates = hidl_vec<uint32_t>(halSampleRates.begin(), halSampleRates.end());
         // Legacy get_parameter does not return a status_t, thus can not advertise of failure.
         // Note that this method must succeed (non empty list) if the format is supported.
         if (sampleRates.size() == 0) {
@@ -123,24 +112,15 @@ Return<void> Stream::getSupportedChannelMasks(AudioFormat format,
     String8 halListValue;
     Result result = getParam(AudioParameter::keyStreamSupportedChannels, &halListValue, context);
     hidl_vec<AudioChannelBitfield> channelMasks;
-#if !(PLATFORM_VERSION == 11)
-    SortedVector<audio_channel_mask_t> halChannelMasks;
-#else
-    std::set<audio_channel_mask_t> halChannelMasks;
-#endif
+    ChannelMaskSet halChannelMasks;
     if (result == Result::OK) {
         halChannelMasks =
             channelMasksFromString(halListValue.string(), AudioParameter::valueListSeparator);
         channelMasks.resize(halChannelMasks.size());
-#if !(PLATFORM_VERSION == 11)
-        for (size_t i = 0; i < halChannelMasks.size(); ++i) {
-            channelMasks[i] = AudioChannelBitfield(halChannelMasks[i]);
+        size_t i = 0;
+        for (auto channelMask : halChannelMasks) {
+            channelMasks[i++] = AudioChannelBitfield(channelMask);
         }
-#else
-        int i = 0;
-        for (std::set<audio_channel_mask_t>::iterator it=halChannelMasks.begin(); it!=halChannelMasks.end(); ++it, ++i)
-            channelMasks[i] = AudioChannelBitfield(*it);
-#endif
         // Legacy get_parameter does not return a status_t, thus can not advertise of failure.
         // Note that this method must succeed (non empty list) if the format is supported.
         if (channelMasks.size() == 0) {
@@ -171,11 +151,7 @@ Return<void> Stream::getSupportedFormats(getSupportedFormats_cb _hidl_cb)  {
     String8 halListValue;
     Result result = getParam(AudioParameter::keyStreamSupportedFormats, &halListValue);
     hidl_vec<AudioFormat> formats;
-#if !(PLATFORM_VERSION == 11)
-    Vector<audio_format_t> halFormats;
-#else
-    std::vector<audio_format_t> halFormats;
-#endif
+    FormatVector halFormats;
     if (result == Result::OK) {
         halFormats = formatsFromString(halListValue.string(), AudioParameter::valueListSeparator);
         formats.resize(halFormats.size());
