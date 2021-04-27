@@ -63,6 +63,15 @@ void directcoredump_init() {
 }
 #endif
 
+/** Try to register the provided factories in the provided order.
+ *  If any registers successfully, do not register any other and return true.
+ *  If all fail, return false.
+ */
+template <class... Factories>
+bool registerPassthroughServiceImplementations() {
+    return ((registerPassthroughServiceImplementation<Factories>() != OK) && ...);
+}
+
 int main(int /* argc */, char * /* argv */ []) {
     ALOGD("Start audiohalservice");
 
@@ -88,34 +97,23 @@ int main(int /* argc */, char * /* argv */ []) {
     }
     configureRpcThreadpool(16, true /*callerWillJoin*/);
 
-    ALOGD("registering IDevicesFactory");
-    bool fail = registerPassthroughServiceImplementation<audio::V5_0::IDevicesFactory>() != OK;
-    ALOGD("registered IDevicesFactory");
-    LOG_ALWAYS_FATAL_IF(fail, "Could not register audio core API 5.0");
+    LOG_ALWAYS_FATAL_IF((registerPassthroughServiceImplementations<audio::V5_0::IDevicesFactory>()),
+                        "Could not register audio core API");
 
-    ALOGD("registering IEffectsFactory");
-    fail = registerPassthroughServiceImplementation<audio::effect::V5_0::IEffectsFactory>() != OK;
-    ALOGD("registered IEffectsFactory");
-    LOG_ALWAYS_FATAL_IF(fail, "Could not register audio effect API 5.0");
+    LOG_ALWAYS_FATAL_IF((registerPassthroughServiceImplementations<audio::effect::V5_0::IEffectsFactory>()),
+                        "Could not register audio effect API");
 
-    ALOGD("registering ISoundTriggerHw sound_trigger.primary");
-    fail = registerPassthroughServiceImplementation<soundtrigger::V2_2::ISoundTriggerHw>() != OK;
-    ALOGD("registered ISoundTriggerHwsound_trigger.primary");
-    ALOGW_IF(fail, "Could not register soundtrigger API 2.2");
+    ALOGW_IF((registerPassthroughServiceImplementations<soundtrigger::V2_2::ISoundTriggerHw>()),
+             "Could not register soundtrigger API");
 
-    ALOGD("registering Bluetooth Audio API 2.0");
-    fail = registerPassthroughServiceImplementation<
-                   bluetooth::audio::V2_0::IBluetoothAudioProvidersFactory>() != OK;
-    ALOGD("registered Bluetooth Audio API 2.0");
-    ALOGW_IF(fail, "Could not register Bluetooth Audio API 2.0");
+    ALOGW_IF(registerPassthroughServiceImplementations<
+                     bluetooth::audio::V2_0::IBluetoothAudioProvidersFactory>(),
+             "Could not register Bluetooth audio API");
 
-    ALOGD("registering IBluetoothAudioOffload");
     // remove the old HIDL when Bluetooth Audio Hal V2 has offloading supported
-    fail =
-        registerPassthroughServiceImplementation<bluetooth::a2dp::V1_0::IBluetoothAudioOffload>() !=
-        OK;
-    ALOGD("registered IBluetoothAudioOffload");
-    ALOGW_IF(fail, "Could not register Bluetooth audio offload 1.0");
+    ALOGW_IF(registerPassthroughServiceImplementations<
+                     bluetooth::a2dp::V1_0::IBluetoothAudioOffload>(),
+             "Could not register Bluetooth audio offload API");
 
     joinRpcThreadpool();
 }
