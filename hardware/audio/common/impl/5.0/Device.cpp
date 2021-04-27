@@ -41,11 +41,10 @@ static Vector<sp<Device>> gCallbackDeviceList;
 
 using ::android::hardware::audio::common::CPP_VERSION::implementation::HidlUtils;
 
-Device::Device(audio_hw_device_mtk_t *device) : mDevice(device) {}
+Device::Device(audio_hw_device_mtk_t *device) : mIsClosed(false), mDevice(device) {}
 
 Device::~Device() {
-    int status = audio_hw_device_close(mDevice);
-    ALOGW_IF(status, "Error closing audio hw device %p: %s", mDevice, strerror(-status));
+    (void)doClose();
     mDevice = nullptr;
 }
 
@@ -410,6 +409,12 @@ Return<Result> Device::clearAudioParameterChangedCallback() {
     }
 
     return Stream::analyzeStatus("clear_audio_parameter_changed_callback", result);
+}
+
+Result Device::doClose() {
+    if (mIsClosed) return Result::INVALID_STATE;
+    mIsClosed = true;
+    return analyzeStatus("close", audio_hw_device_close(mDevice));
 }
 
 }  // namespace implementation

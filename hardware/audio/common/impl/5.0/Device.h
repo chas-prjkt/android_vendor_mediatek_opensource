@@ -122,10 +122,13 @@ struct Device : public IDevice, public ParametersUtil {
     Return<Result> setAudioParameterChangedCallback(const sp<IAudioParameterChangedCallback>& callback);
     Return<Result> clearAudioParameterChangedCallback();
 
-private:
+  private:
+    bool mIsClosed;
     audio_hw_device_mtk_t *mDevice;
 
     virtual ~Device();
+
+    Result doClose();
 
     // Methods from ParametersUtil.
     char *halGetParameters(const char *keys) override;

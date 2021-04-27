@@ -33,7 +33,11 @@ namespace implementation {
 MTKPrimaryDevice::MTKPrimaryDevice(audio_hw_device_mtk_t *device)
     : mDevice(new android::hardware::audio::V5_0::implementation::Device(device)) {}
 
-MTKPrimaryDevice::~MTKPrimaryDevice() {}
+MTKPrimaryDevice::~MTKPrimaryDevice() {
+    // Do not call mDevice->close here. If there are any unclosed streams,
+    // they only hold IDevice instance, not IPrimaryDevice, thus IPrimaryDevice
+    // "part" of a device can be destroyed before the streams.
+}
 
 // Methods from ::android::hardware::audio::V5_0::IDevice follow.
 Return<Result> MTKPrimaryDevice::initCheck() {

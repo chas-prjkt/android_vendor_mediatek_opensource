@@ -142,8 +142,7 @@ bool WriteThread::threadLoop() {
 }  // namespace
 
 StreamOut::StreamOut(const sp<Device> &device, audio_stream_out_t *stream)
-    : mIsClosed(false),
-      mDevice(device),
+    : mDevice(device),
       mStream(stream),
       mStreamCommon(new Stream(&stream->common)),
       mStreamMmap(new StreamMmap<audio_stream_out_t>(stream)),
@@ -152,7 +151,7 @@ StreamOut::StreamOut(const sp<Device> &device, audio_stream_out_t *stream)
 
 StreamOut::~StreamOut() {
     ATRACE_CALL();
-    close();
+    (void)close();
     if (mWriteThread.get()) {
         ATRACE_NAME("mWriteThread->join");
         status_t status = mWriteThread->join();
@@ -259,11 +258,10 @@ Return<Result> StreamOut::setParameters(const hidl_vec<ParameterValue>& context,
 }
 
 Return<Result> StreamOut::close() {
-    if (mIsClosed) return Result::INVALID_STATE;
-    mIsClosed = true;
-    if (mWriteThread.get()) {
-        mStopWriteThread.store(true, std::memory_order_release);
+    if (mStopWriteThread.load(std::memory_order_relaxed)) {  // only this thread writes
+        return Result::INVALID_STATE;
     }
+    mStopWriteThread.store(true, std::memory_order_release);
     if (mEfGroup) {
         mEfGroup->wake(static_cast<uint32_t>(MessageQueueFlagBits::NOT_EMPTY));
     }
