@@ -421,20 +421,22 @@ int StreamOut::asyncCallback(stream_callback_event_t event, void*, void* cookie)
     sp<IStreamOutCallback> callback = self->mCallback;
     if (callback.get() == nullptr) return 0;
     ALOGV("asyncCallback() event %d", event);
+    Return<void> result;
     switch (event) {
     case STREAM_CBK_EVENT_WRITE_READY:
-            callback->onWriteReady();
+            result = callback->onWriteReady();
         break;
     case STREAM_CBK_EVENT_DRAIN_READY:
-            callback->onDrainReady();
+            result = callback->onDrainReady();
         break;
     case STREAM_CBK_EVENT_ERROR:
-            callback->onError();
+            result = callback->onError();
         break;
     default:
         ALOGW("asyncCallback() unknown event %d", event);
         break;
     }
+    ALOGW_IF(!result.isOk(), "Client callback failed: %s", result.description().c_str());
     return 0;
 }
 
