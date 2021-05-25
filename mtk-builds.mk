@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# Call Connectivity
+$(call inherit-product, vendor/mediatek/opensource/hardware/connectivity/connectivity_package.mk)
+
 # Call Interfaces (vendor)
 $(call inherit-product, vendor/mediatek/opensource/mtk-interfaces.mk)
 
