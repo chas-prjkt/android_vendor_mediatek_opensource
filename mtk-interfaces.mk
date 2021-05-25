@@ -131,4 +131,5 @@ PRODUCT_PACKAGES += \
     vendor.mediatek.hardware.wifi.supplicant@1.1.vendor \
     vendor.mediatek.hardware.wifi.supplicant@2.0.vendor \
     vendor.mediatek.hardware.wifi.supplicant@2.1.vendor \
+    vendor.mediatek.hardware.wifi.supplicant@2.2.vendor \
     vendor.mediatek.hardware.camera.postproc@1.0.vendor
