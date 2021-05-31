@@ -39,5 +39,6 @@ PRODUCT_PACKAGES += \
     android.hardware.audio.service.mediatek \
     android.hardware.audio@6.0-impl-mediatek \
     android.hardware.power@1.3-impl-mediatek \
+    android.hardware.usb@1.1-service-mediatek \
     vendor.mediatek.hardware.mtkpower@1.0-impl \
     vendor.mediatek.hardware.mtkpower@1.0-service
