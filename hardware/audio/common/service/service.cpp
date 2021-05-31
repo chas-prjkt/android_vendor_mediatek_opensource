@@ -98,18 +98,27 @@ int main(int /* argc */, char * /* argv */ []) {
     const std::vector<InterfacesList> mandatoryInterfaces = {
         {
             "Audio Core API",
-            "android.hardware.audio@5.0::IDevicesFactory"
+            "android.hardware.audio@6.0::IDevicesFactory",
+            "android.hardware.audio@5.0::IDevicesFactory",
+            "android.hardware.audio@4.0::IDevicesFactory",
+            "android.hardware.audio@2.0::IDevicesFactory"
         },
         {
             "Audio Effect API",
+            "android.hardware.audio.effect@6.0::IEffectsFactory",
             "android.hardware.audio.effect@5.0::IEffectsFactory",
+            "android.hardware.audio.effect@4.0::IEffectsFactory",
+            "android.hardware.audio.effect@2.0::IEffectsFactory",
         }
     };
 
     const std::vector<InterfacesList> optionalInterfaces = {
         {
             "Soundtrigger API",
+            "android.hardware.soundtrigger@2.3::ISoundTriggerHw",
             "android.hardware.soundtrigger@2.2::ISoundTriggerHw",
+            "android.hardware.soundtrigger@2.1::ISoundTriggerHw",
+            "android.hardware.soundtrigger@2.0::ISoundTriggerHw",
         },
         {
             "Bluetooth Audio API",

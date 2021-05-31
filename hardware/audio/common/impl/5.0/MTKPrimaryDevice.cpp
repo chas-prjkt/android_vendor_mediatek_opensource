@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,17 @@
 #include "MTKPrimaryDevice.h"
 #include "Util.h"
 
+#if MAJOR_VERSION >= 4
 #include <cmath>
+#endif
 
-using ::android::hardware::audio::V5_0::implementation::isGainNormalized;
-
-namespace vendor {
-namespace mediatek {
+namespace android {
 namespace hardware {
 namespace audio {
-namespace V5_1 {
+namespace CPP_VERSION {
 namespace implementation {
 
-MTKPrimaryDevice::MTKPrimaryDevice(audio_hw_device_mtk_t *device)
-    : mDevice(new android::hardware::audio::V5_0::implementation::Device(device)) {}
+MTKPrimaryDevice::MTKPrimaryDevice(audio_hw_device_mtk_t* device) : mDevice(new Device(device)) {}
 
 MTKPrimaryDevice::~MTKPrimaryDevice() {
     // Do not call mDevice->close here. If there are any unclosed streams,
@@ -39,7 +37,7 @@ MTKPrimaryDevice::~MTKPrimaryDevice() {
     // "part" of a device can be destroyed before the streams.
 }
 
-// Methods from ::android::hardware::audio::V5_0::IDevice follow.
+// Methods from ::android::hardware::audio::CPP_VERSION::IDevice follow.
 Return<Result> MTKPrimaryDevice::initCheck() {
     return mDevice->initCheck();
 }
@@ -68,11 +66,25 @@ Return<void> MTKPrimaryDevice::getMasterMute(getMasterMute_cb _hidl_cb) {
     return mDevice->getMasterMute(_hidl_cb);
 }
 
-Return<void> MTKPrimaryDevice::getInputBufferSize(const AudioConfig &config,
+Return<void> MTKPrimaryDevice::getInputBufferSize(const AudioConfig& config,
                                                getInputBufferSize_cb _hidl_cb) {
     return mDevice->getInputBufferSize(config, _hidl_cb);
 }
 
+#if MAJOR_VERSION == 2
+Return<void> MTKPrimaryDevice::openOutputStream(int32_t ioHandle, const DeviceAddress& device,
+                                             const AudioConfig& config,
+                                             AudioOutputFlagBitfield flags,
+                                             openOutputStream_cb _hidl_cb) {
+    return mDevice->openOutputStream(ioHandle, device, config, flags, _hidl_cb);
+}
+
+Return<void> MTKPrimaryDevice::openInputStream(int32_t ioHandle, const DeviceAddress& device,
+                                            const AudioConfig& config, AudioInputFlagBitfield flags,
+                                            AudioSource source, openInputStream_cb _hidl_cb) {
+    return mDevice->openInputStream(ioHandle, device, config, flags, source, _hidl_cb);
+}
+#elif MAJOR_VERSION >= 4
 Return<void> MTKPrimaryDevice::openOutputStream(int32_t ioHandle, const DeviceAddress& device,
                                              const AudioConfig& config,
                                              AudioOutputFlagBitfield flags,
@@ -87,13 +99,14 @@ Return<void> MTKPrimaryDevice::openInputStream(int32_t ioHandle, const DeviceAdd
                                             openInputStream_cb _hidl_cb) {
     return mDevice->openInputStream(ioHandle, device, config, flags, sinkMetadata, _hidl_cb);
 }
+#endif
 
 Return<bool> MTKPrimaryDevice::supportsAudioPatches() {
     return mDevice->supportsAudioPatches();
 }
 
-Return<void> MTKPrimaryDevice::createAudioPatch(const hidl_vec<AudioPortConfig> &sources,
-                                             const hidl_vec<AudioPortConfig> &sinks,
+Return<void> MTKPrimaryDevice::createAudioPatch(const hidl_vec<AudioPortConfig>& sources,
+                                             const hidl_vec<AudioPortConfig>& sinks,
                                              createAudioPatch_cb _hidl_cb) {
     return mDevice->createAudioPatch(sources, sinks, _hidl_cb);
 }
@@ -114,6 +127,24 @@ Return<Result> MTKPrimaryDevice::setScreenState(bool turnedOn) {
     return mDevice->setScreenState(turnedOn);
 }
 
+#if MAJOR_VERSION == 2
+Return<AudioHwSync> MTKPrimaryDevice::getHwAvSync() {
+    return mDevice->getHwAvSync();
+}
+
+Return<void> MTKPrimaryDevice::getParameters(const hidl_vec<hidl_string>& keys,
+                                          getParameters_cb _hidl_cb) {
+    return mDevice->getParameters(keys, _hidl_cb);
+}
+
+Return<Result> MTKPrimaryDevice::setParameters(const hidl_vec<ParameterValue>& parameters) {
+    return mDevice->setParameters(parameters);
+}
+
+Return<void> MTKPrimaryDevice::debugDump(const hidl_handle& fd) {
+    return mDevice->debugDump(fd);
+}
+#elif MAJOR_VERSION >= 4
 Return<void> MTKPrimaryDevice::getHwAvSync(getHwAvSync_cb _hidl_cb) {
     return mDevice->getHwAvSync(_hidl_cb);
 }
@@ -132,18 +163,54 @@ Return<void> MTKPrimaryDevice::getMicrophones(getMicrophones_cb _hidl_cb) {
 Return<Result> MTKPrimaryDevice::setConnectedState(const DeviceAddress& address, bool connected) {
     return mDevice->setConnectedState(address, connected);
 }
+#endif
+#if MAJOR_VERSION >= 6
+Return<Result> MTKPrimaryDevice::close() {
+    return mDevice->close();
+}
 
-// Methods from ::android::hardware::audio::V5_0::IPrimaryDevice follow.
+Return<Result> MTKPrimaryDevice::addDeviceEffect(AudioPortHandle device, uint64_t effectId) {
+    return mDevice->addDeviceEffect(device, effectId);
+}
+
+Return<Result> MTKPrimaryDevice::removeDeviceEffect(AudioPortHandle device, uint64_t effectId) {
+    return mDevice->removeDeviceEffect(device, effectId);
+}
+
+Return<void> MTKPrimaryDevice::updateAudioPatch(int32_t previousPatch,
+                                             const hidl_vec<AudioPortConfig>& sources,
+                                             const hidl_vec<AudioPortConfig>& sinks,
+                                             updateAudioPatch_cb _hidl_cb) {
+    return mDevice->updateAudioPatch(previousPatch, sources, sinks, _hidl_cb);
+}
+#endif
+
+// Methods from ::android::hardware::audio::CPP_VERSION::IPrimaryDevice follow.
 Return<Result> MTKPrimaryDevice::setVoiceVolume(float volume) {
     if (!isGainNormalized(volume)) {
         ALOGW("Can not set a voice volume (%f) outside [0,1]", volume);
         return Result::INVALID_ARGUMENTS;
     }
     return mDevice->analyzeStatus("set_voice_volume",
-               mDevice->device()->set_voice_volume(mDevice->device(), volume));
+                                  mDevice->device()->set_voice_volume(mDevice->device(), volume));
 }
 
 Return<Result> MTKPrimaryDevice::setMode(AudioMode mode) {
+    // INVALID, CURRENT, CNT, MAX are reserved for internal use.
+    // TODO: remove the values from the HIDL interface
+    switch (mode) {
+        case AudioMode::NORMAL:
+        case AudioMode::RINGTONE:
+        case AudioMode::IN_CALL:
+        case AudioMode::IN_COMMUNICATION:
+#if MAJOR_VERSION >= 6
+        case AudioMode::CALL_SCREEN:
+#endif
+            break;  // Valid values
+        default:
+            return Result::INVALID_ARGUMENTS;
+    };
+
     return mDevice->analyzeStatus(
         "set_mode",
         mDevice->device()->set_mode(mDevice->device(), static_cast<audio_mode_t>(mode)));
@@ -151,13 +218,13 @@ Return<Result> MTKPrimaryDevice::setMode(AudioMode mode) {
 
 Return<void> MTKPrimaryDevice::getBtScoNrecEnabled(getBtScoNrecEnabled_cb _hidl_cb) {
     bool enabled;
-    Result retval = mDevice->getParam(android::AudioParameter::keyBtNrec, &enabled);
+    Result retval = mDevice->getParam(AudioParameter::keyBtNrec, &enabled);
     _hidl_cb(retval, enabled);
     return Void();
 }
 
 Return<Result> MTKPrimaryDevice::setBtScoNrecEnabled(bool enabled) {
-    return mDevice->setParam(android::AudioParameter::keyBtNrec, enabled);
+    return mDevice->setParam(AudioParameter::keyBtNrec, enabled);
 }
 
 Return<void> MTKPrimaryDevice::getBtScoWidebandEnabled(getBtScoWidebandEnabled_cb _hidl_cb) {
@@ -198,7 +265,7 @@ static IPrimaryDevice::TtyMode convertTtyModeToHIDL(const char* halMode) {
 }
 
 Return<void> MTKPrimaryDevice::getTtyMode(getTtyMode_cb _hidl_cb) {
-    android::String8 halMode;
+    String8 halMode;
     Result retval = mDevice->getParam(AUDIO_PARAMETER_KEY_TTY_MODE, &halMode);
     if (retval != Result::OK) {
         _hidl_cb(retval, TtyMode::OFF);
@@ -234,6 +301,7 @@ Return<Result> MTKPrimaryDevice::setHacEnabled(bool enabled) {
     return mDevice->setParam(AUDIO_PARAMETER_KEY_HAC, enabled);
 }
 
+#if MAJOR_VERSION >= 4
 Return<Result> MTKPrimaryDevice::setBtScoHeadsetDebugName(const hidl_string& name) {
     return mDevice->setParam(AUDIO_PARAMETER_KEY_BT_SCO_HEADSET_NAME, name.c_str());
 }
@@ -262,6 +330,7 @@ Return<Result> MTKPrimaryDevice::updateRotation(IPrimaryDevice::Rotation rotatio
     // legacy API expects the rotation in degree
     return mDevice->setParam(AUDIO_PARAMETER_KEY_ROTATION, int(rotation) * 90);
 }
+#endif
 
 Return<void> MTKPrimaryDevice::debug(const hidl_handle& fd, const hidl_vec<hidl_string>& options) {
     return mDevice->debug(fd, options);
@@ -280,8 +349,7 @@ Return<Result> MTKPrimaryDevice::clearAudioParameterChangedCallback()  {
 }
 
 }  // namespace implementation
-}  // namespace V5_1
+}  // namespace CPP_VERSION
 }  // namespace audio
 }  // namespace hardware
-}  // namespace mediatek
-}  // namespace vendor
+}  // namespace android

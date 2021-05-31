@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,18 +31,37 @@ namespace audio {
 namespace CPP_VERSION {
 namespace implementation {
 
+#if MAJOR_VERSION == 2
+Return<void> DevicesFactory::openDevice(IDevicesFactory::Device device, openDevice_cb _hidl_cb) {
+    switch (device) {
+        case IDevicesFactory::Device::PRIMARY:
+            return openDevice<MTKPrimaryDevice>(AUDIO_HARDWARE_MODULE_ID_PRIMARY, _hidl_cb);
+        case IDevicesFactory::Device::A2DP:
+            return openDevice(AUDIO_HARDWARE_MODULE_ID_A2DP, _hidl_cb);
+        case IDevicesFactory::Device::USB:
+            return openDevice(AUDIO_HARDWARE_MODULE_ID_USB, _hidl_cb);
+        case IDevicesFactory::Device::R_SUBMIX:
+            return openDevice(AUDIO_HARDWARE_MODULE_ID_REMOTE_SUBMIX, _hidl_cb);
+        case IDevicesFactory::Device::STUB:
+            return openDevice(AUDIO_HARDWARE_MODULE_ID_STUB, _hidl_cb);
+    }
+    _hidl_cb(Result::INVALID_ARGUMENTS, nullptr);
+    return Void();
+}
+#elif MAJOR_VERSION >= 4
 Return<void> DevicesFactory::openDevice(const hidl_string& moduleName, openDevice_cb _hidl_cb) {
     if (moduleName == AUDIO_HARDWARE_MODULE_ID_PRIMARY) {
-        return openDevice<vendor::mediatek::hardware::audio::V5_1::implementation::MTKPrimaryDevice>(moduleName.c_str(), _hidl_cb);
+        return openDevice<MTKPrimaryDevice>(moduleName.c_str(), _hidl_cb);
     }
     return openDevice(moduleName.c_str(), _hidl_cb);
 }
 Return<void> DevicesFactory::openPrimaryDevice(openPrimaryDevice_cb _hidl_cb) {
-    return openDevice<vendor::mediatek::hardware::audio::V5_1::implementation::MTKPrimaryDevice>(AUDIO_HARDWARE_MODULE_ID_PRIMARY, _hidl_cb);
+    return openDevice<MTKPrimaryDevice>(AUDIO_HARDWARE_MODULE_ID_PRIMARY, _hidl_cb);
 }
+#endif
 
 Return<void> DevicesFactory::openDevice(const char* moduleName, openDevice_cb _hidl_cb) {
-    return openDevice<::android::hardware::audio::V5_0::implementation::Device>(moduleName, _hidl_cb);
+    return openDevice<implementation::Device>(moduleName, _hidl_cb);
 }
 
 template <class DeviceShim, class Callback>
@@ -62,8 +81,8 @@ Return<void> DevicesFactory::openDevice(const char* moduleName, Callback _hidl_c
 }
 
 // static
-int DevicesFactory::loadAudioInterface(const char *if_name, audio_hw_device_t **dev) {
-    const hw_module_t *mod;
+int DevicesFactory::loadAudioInterface(const char* if_name, audio_hw_device_t** dev) {
+    const hw_module_t* mod;
     int rc;
 
     rc = hw_get_module_by_class(AUDIO_HARDWARE_MODULE_ID, if_name, &mod);

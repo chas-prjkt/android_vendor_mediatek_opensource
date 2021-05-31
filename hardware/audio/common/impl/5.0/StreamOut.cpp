@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@
 //#define LOG_NDEBUG 0
 #define ATRACE_TAG ATRACE_TAG_AUDIO
 
+#include <string.h>
+
 #include <memory>
 
 #include <android/log.h>
@@ -37,11 +39,11 @@ namespace implementation {
 namespace {
 
 class WriteThread : public Thread {
-public:
+   public:
     // WriteThread's lifespan never exceeds StreamOut's lifespan.
-    WriteThread(std::atomic<bool> *stop, audio_stream_out_t *stream,
-                StreamOut::CommandMQ *commandMQ, StreamOut::DataMQ *dataMQ,
-                StreamOut::StatusMQ *statusMQ, EventFlag *efGroup)
+    WriteThread(std::atomic<bool>* stop, audio_stream_out_t* stream,
+                StreamOut::CommandMQ* commandMQ, StreamOut::DataMQ* dataMQ,
+                StreamOut::StatusMQ* statusMQ, EventFlag* efGroup)
         : Thread(false /*canCallJava*/),
           mStop(stop),
           mStream(stream),
@@ -49,24 +51,20 @@ public:
           mDataMQ(dataMQ),
           mStatusMQ(statusMQ),
           mEfGroup(efGroup),
-          mBuffer(nullptr) {
-          mStatus.retval = Result::NOT_INITIALIZED;
-          mStatus.reply.written = 0;
-          mStatus.replyTo = {0};
-          }
+          mBuffer(nullptr) {}
     bool init() {
         mBuffer.reset(new (std::nothrow) uint8_t[mDataMQ->getQuantumCount()]);
         return mBuffer != nullptr;
     }
     virtual ~WriteThread() {}
 
-private:
-    std::atomic<bool> *mStop;
-    audio_stream_out_t *mStream;
-    StreamOut::CommandMQ *mCommandMQ;
-    StreamOut::DataMQ *mDataMQ;
-    StreamOut::StatusMQ *mStatusMQ;
-    EventFlag *mEfGroup;
+   private:
+    std::atomic<bool>* mStop;
+    audio_stream_out_t* mStream;
+    StreamOut::CommandMQ* mCommandMQ;
+    StreamOut::DataMQ* mDataMQ;
+    StreamOut::StatusMQ* mStatusMQ;
+    EventFlag* mEfGroup;
     std::unique_ptr<uint8_t[]> mBuffer;
     IStreamOut::WriteStatus mStatus;
 
@@ -94,7 +92,7 @@ void WriteThread::doWrite() {
 void WriteThread::doGetPresentationPosition() {
     mStatus.retval =
         StreamOut::getPresentationPositionImpl(mStream, &mStatus.reply.presentationPosition.frames,
-                         &mStatus.reply.presentationPosition.timeStamp);
+                                               &mStatus.reply.presentationPosition.timeStamp);
 }
 
 void WriteThread::doGetLatency() {
@@ -116,19 +114,19 @@ bool WriteThread::threadLoop() {
             continue;  // Nothing to do.
         }
         switch (mStatus.replyTo) {
-        case IStreamOut::WriteCommand::WRITE:
-            doWrite();
-            break;
-        case IStreamOut::WriteCommand::GET_PRESENTATION_POSITION:
-            doGetPresentationPosition();
-            break;
-        case IStreamOut::WriteCommand::GET_LATENCY:
-            doGetLatency();
-            break;
-        default:
-            ALOGE("Unknown write thread command code %d", mStatus.replyTo);
-            mStatus.retval = Result::NOT_SUPPORTED;
-            break;
+            case IStreamOut::WriteCommand::WRITE:
+                doWrite();
+                break;
+            case IStreamOut::WriteCommand::GET_PRESENTATION_POSITION:
+                doGetPresentationPosition();
+                break;
+            case IStreamOut::WriteCommand::GET_LATENCY:
+                doGetLatency();
+                break;
+            default:
+                ALOGE("Unknown write thread command code %d", mStatus.replyTo);
+                mStatus.retval = Result::NOT_SUPPORTED;
+                break;
         }
         if (!mStatusMQ->write(&mStatus)) {
             ALOGE("status message queue write failed");
@@ -141,7 +139,7 @@ bool WriteThread::threadLoop() {
 
 }  // namespace
 
-StreamOut::StreamOut(const sp<Device> &device, audio_stream_out_t *stream)
+StreamOut::StreamOut(const sp<Device>& device, audio_stream_out_t* stream)
     : mDevice(device),
       mStream(stream),
       mStreamCommon(new Stream(&stream->common)),
@@ -162,10 +160,12 @@ StreamOut::~StreamOut() {
         ALOGE_IF(status, "write MQ event flag deletion error: %s", strerror(-status));
     }
     mCallback.clear();
+#if MAJOR_VERSION <= 5
     mDevice->closeOutputStream(mStream);
     // Closing the output stream in the HAL waits for the callback to finish,
     // and joins the callback thread. Thus is it guaranteed that the callback
     // thread will not be accessing our object anymore.
+#endif
     mStream = nullptr;
 }
 
@@ -185,6 +185,15 @@ Return<uint64_t> StreamOut::getBufferSize() {
 Return<uint32_t> StreamOut::getSampleRate() {
     return mStreamCommon->getSampleRate();
 }
+
+#if MAJOR_VERSION == 2
+Return<void> StreamOut::getSupportedChannelMasks(getSupportedChannelMasks_cb _hidl_cb) {
+    return mStreamCommon->getSupportedChannelMasks(_hidl_cb);
+}
+Return<void> StreamOut::getSupportedSampleRates(getSupportedSampleRates_cb _hidl_cb) {
+    return mStreamCommon->getSupportedSampleRates(_hidl_cb);
+}
+#endif
 
 Return<void> StreamOut::getSupportedChannelMasks(AudioFormat format,
                                                  getSupportedChannelMasks_cb _hidl_cb) {
@@ -239,6 +248,32 @@ Return<Result> StreamOut::setHwAvSync(uint32_t hwAvSync) {
     return mStreamCommon->setHwAvSync(hwAvSync);
 }
 
+#if MAJOR_VERSION == 2
+Return<Result> StreamOut::setConnectedState(const DeviceAddress& address, bool connected) {
+    return mStreamCommon->setConnectedState(address, connected);
+}
+
+Return<AudioDevice> StreamOut::getDevice() {
+    return mStreamCommon->getDevice();
+}
+
+Return<Result> StreamOut::setDevice(const DeviceAddress& address) {
+    return mStreamCommon->setDevice(address);
+}
+
+Return<void> StreamOut::getParameters(const hidl_vec<hidl_string>& keys,
+                                      getParameters_cb _hidl_cb) {
+    return mStreamCommon->getParameters(keys, _hidl_cb);
+}
+
+Return<Result> StreamOut::setParameters(const hidl_vec<ParameterValue>& parameters) {
+    return mStreamCommon->setParameters(parameters);
+}
+
+Return<void> StreamOut::debugDump(const hidl_handle& fd) {
+    return mStreamCommon->debugDump(fd);
+}
+#elif MAJOR_VERSION >= 4
 Return<void> StreamOut::getDevices(getDevices_cb _hidl_cb) {
     return mStreamCommon->getDevices(_hidl_cb);
 }
@@ -256,6 +291,7 @@ Return<Result> StreamOut::setParameters(const hidl_vec<ParameterValue>& context,
                                         const hidl_vec<ParameterValue>& parameters) {
     return mStreamCommon->setParameters(context, parameters);
 }
+#endif
 
 Return<Result> StreamOut::close() {
     if (mStopWriteThread.load(std::memory_order_relaxed)) {  // only this thread writes
@@ -265,6 +301,9 @@ Return<Result> StreamOut::close() {
     if (mEfGroup) {
         mEfGroup->wake(static_cast<uint32_t>(MessageQueueFlagBits::NOT_EMPTY));
     }
+#if MAJOR_VERSION >= 6
+    mDevice->closeOutputStream(mStream);
+#endif
     return Result::OK;
 }
 
@@ -310,14 +349,9 @@ Return<void> StreamOut::prepareForWriting(uint32_t frameSize, uint32_t framesCou
         sendError(Result::INVALID_ARGUMENTS);
         return Void();
     }
-    // A message queue asserts if it can not handle the requested buffer,
-    // thus the client has to guess the maximum size it can handle
-    size_t metadataOverhead =
-        100000;  // Arbitrary margin for the overhead of a message queue
-    if (frameSize >
-        (std::numeric_limits<size_t>::max() - metadataOverhead) / framesCount) {
-        ALOGE("Buffer too big: %u*%u bytes can not fit in a message queue",
-              frameSize, framesCount);
+    if (frameSize > Stream::MAX_BUFFER_SIZE / framesCount) {
+        ALOGE("Buffer too big: %u*%u bytes > MAX_BUFFER_SIZE (%u)", frameSize, framesCount,
+              Stream::MAX_BUFFER_SIZE);
         sendError(Result::INVALID_ARGUMENTS);
         return Void();
     }
@@ -331,10 +365,10 @@ Return<void> StreamOut::prepareForWriting(uint32_t frameSize, uint32_t framesCou
         sendError(Result::INVALID_ARGUMENTS);
         return Void();
     }
-    EventFlag *tempRawEfGroup{};
+    EventFlag* tempRawEfGroup{};
     status = EventFlag::createEventFlag(tempDataMQ->getEventFlagWord(), &tempRawEfGroup);
-    std::unique_ptr<EventFlag, void (*)(EventFlag *)> tempElfGroup(
-    tempRawEfGroup, [](auto * ef) { EventFlag::deleteEventFlag(&ef); });
+    std::unique_ptr<EventFlag, void (*)(EventFlag*)> tempElfGroup(
+        tempRawEfGroup, [](auto* ef) { EventFlag::deleteEventFlag(&ef); });
     if (status != OK || !tempElfGroup) {
         ALOGE("failed creating event flag for data MQ: %s", strerror(-status));
         sendError(Result::INVALID_ARGUMENTS);
@@ -390,7 +424,7 @@ Return<void> StreamOut::getNextWriteTimestamp(getNextWriteTimestamp_cb _hidl_cb)
     return Void();
 }
 
-Return<Result> StreamOut::setCallback(const sp<IStreamOutCallback> &callback) {
+Return<Result> StreamOut::setCallback(const sp<IStreamOutCallback>& callback) {
     if (mStream->set_callback == NULL) return Result::NOT_SUPPORTED;
     // Safe to pass 'this' because it is guaranteed that the callback thread
     // is joined prior to exit from StreamOut's destructor.
@@ -423,18 +457,18 @@ int StreamOut::asyncCallback(stream_callback_event_t event, void*, void* cookie)
     ALOGV("asyncCallback() event %d", event);
     Return<void> result;
     switch (event) {
-    case STREAM_CBK_EVENT_WRITE_READY:
+        case STREAM_CBK_EVENT_WRITE_READY:
             result = callback->onWriteReady();
-        break;
-    case STREAM_CBK_EVENT_DRAIN_READY:
+            break;
+        case STREAM_CBK_EVENT_DRAIN_READY:
             result = callback->onDrainReady();
-        break;
-    case STREAM_CBK_EVENT_ERROR:
+            break;
+        case STREAM_CBK_EVENT_ERROR:
             result = callback->onError();
-        break;
-    default:
-        ALOGW("asyncCallback() unknown event %d", event);
-        break;
+            break;
+        default:
+            ALOGW("asyncCallback() unknown event %d", event);
+            break;
     }
     ALOGW_IF(!result.isOk(), "Client callback failed: %s", result.description().c_str());
     return 0;
@@ -478,7 +512,7 @@ Return<Result> StreamOut::flush() {
 
 // static
 Result StreamOut::getPresentationPositionImpl(audio_stream_out_t* stream, uint64_t* frames,
-                                              TimeSpec *timeStamp) {
+                                              TimeSpec* timeStamp) {
     // Don't logspam on EINVAL--it's normal for get_presentation_position
     // to return it sometimes. EAGAIN may be returned by A2DP audio HAL
     // implementation. ENODATA can also be reported while the writer is
@@ -526,6 +560,7 @@ Return<void> StreamOut::debug(const hidl_handle& fd, const hidl_vec<hidl_string>
     return mStreamCommon->debug(fd, options);
 }
 
+#if MAJOR_VERSION >= 4
 Return<void> StreamOut::updateSourceMetadata(const SourceMetadata& sourceMetadata) {
     if (mStream->update_source_metadata == nullptr) {
         return Void();  // not supported by the HAL
@@ -549,6 +584,68 @@ Return<void> StreamOut::updateSourceMetadata(const SourceMetadata& sourceMetadat
 Return<Result> StreamOut::selectPresentation(int32_t /*presentationId*/, int32_t /*programId*/) {
     return Result::NOT_SUPPORTED;  // TODO: propagate to legacy
 }
+#endif
+
+#if MAJOR_VERSION >= 6
+Return<void> StreamOut::getDualMonoMode(getDualMonoMode_cb _hidl_cb) {
+    _hidl_cb(Result::NOT_SUPPORTED, DualMonoMode::OFF);
+    return Void();
+}
+
+Return<Result> StreamOut::setDualMonoMode(DualMonoMode /*mode*/) {
+    return Result::NOT_SUPPORTED;
+}
+
+Return<void> StreamOut::getAudioDescriptionMixLevel(getAudioDescriptionMixLevel_cb _hidl_cb) {
+    _hidl_cb(Result::NOT_SUPPORTED, -std::numeric_limits<float>::infinity());
+    return Void();
+}
+
+Return<Result> StreamOut::setAudioDescriptionMixLevel(float /*leveldB*/) {
+    return Result::NOT_SUPPORTED;
+}
+
+Return<void> StreamOut::getPlaybackRateParameters(getPlaybackRateParameters_cb _hidl_cb) {
+    _hidl_cb(Result::NOT_SUPPORTED,
+             // Same as AUDIO_PLAYBACK_RATE_INITIALIZER
+             PlaybackRate{1.0f, 1.0f, TimestretchMode::DEFAULT, TimestretchFallbackMode::FAIL});
+    return Void();
+}
+
+Return<Result> StreamOut::setPlaybackRateParameters(const PlaybackRate& /*playbackRate*/) {
+    return Result::NOT_SUPPORTED;
+}
+
+Return<Result> StreamOut::setEventCallback(const sp<IStreamOutEventCallback>& callback) {
+    if (mStream->set_event_callback == nullptr) return Result::NOT_SUPPORTED;
+    int result = mStream->set_event_callback(mStream, StreamOut::asyncEventCallback, this);
+    if (result == 0) {
+        mEventCallback = callback;
+    }
+    return Stream::analyzeStatus("set_stream_out_callback", result, {ENOSYS} /*ignore*/);
+}
+
+// static
+int StreamOut::asyncEventCallback(stream_event_callback_type_t event, void* param, void* cookie) {
+    StreamOut* self = reinterpret_cast<StreamOut*>(cookie);
+    sp<IStreamOutEventCallback> eventCallback = self->mEventCallback;
+    if (eventCallback.get() == nullptr) return 0;
+    ALOGV("%s event %d", __func__, event);
+    Return<void> result;
+    switch (event) {
+        case STREAM_EVENT_CBK_TYPE_CODEC_FORMAT_CHANGED: {
+            hidl_vec<uint8_t> audioMetadata;
+            audioMetadata.setToExternal((uint8_t*)param, strlen((char*)param));
+            result = eventCallback->onCodecFormatChanged(audioMetadata);
+        } break;
+        default:
+            ALOGW("%s unknown event %d", __func__, event);
+            break;
+    }
+    ALOGW_IF(!result.isOk(), "Client callback failed: %s", result.description().c_str());
+    return 0;
+}
+#endif
 
 }  // namespace implementation
 }  // namespace CPP_VERSION

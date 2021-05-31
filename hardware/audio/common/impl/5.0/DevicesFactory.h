@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,18 +38,22 @@ using ::android::hardware::Void;
 using namespace ::android::hardware::audio::CPP_VERSION;
 
 struct DevicesFactory : public IDevicesFactory {
+#if MAJOR_VERSION == 2
+    Return<void> openDevice(IDevicesFactory::Device device, openDevice_cb _hidl_cb) override;
+#elif MAJOR_VERSION >= 4
     Return<void> openDevice(const hidl_string& device, openDevice_cb _hidl_cb) override;
     Return<void> openPrimaryDevice(openPrimaryDevice_cb _hidl_cb) override;
+#endif
 
-private:
+   private:
     template <class DeviceShim, class Callback>
     Return<void> openDevice(const char* moduleName, Callback _hidl_cb);
     Return<void> openDevice(const char* moduleName, openDevice_cb _hidl_cb);
 
-    static int loadAudioInterface(const char *if_name, audio_hw_device_t **dev);
+    static int loadAudioInterface(const char* if_name, audio_hw_device_t** dev);
 };
 
-extern "C" IDevicesFactory *HIDL_FETCH_IDevicesFactory(const char *name);
+extern "C" IDevicesFactory* HIDL_FETCH_IDevicesFactory(const char* name);
 
 }  // namespace implementation
 }  // namespace CPP_VERSION

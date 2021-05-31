@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include "StreamIn.h"
 #include "Conversions.h"
 #include "Util.h"
+#include "common/all-versions/HidlSupport.h"
 
 //#define LOG_NDEBUG 0
 #define ATRACE_TAG ATRACE_TAG_AUDIO
@@ -27,6 +28,7 @@
 #include <hardware/audio.h>
 #include <utils/Trace.h>
 #include <memory>
+#include <cmath>
 
 namespace android {
 namespace hardware {
@@ -37,7 +39,7 @@ namespace implementation {
 namespace {
 
 class ReadThread : public Thread {
-public:
+   public:
     // ReadThread's lifespan never exceeds StreamIn's lifespan.
     ReadThread(std::atomic<bool>* stop, audio_stream_in_t* stream, StreamIn::CommandMQ* commandMQ,
                StreamIn::DataMQ* dataMQ, StreamIn::StatusMQ* statusMQ, EventFlag* efGroup)
@@ -48,26 +50,20 @@ public:
           mDataMQ(dataMQ),
           mStatusMQ(statusMQ),
           mEfGroup(efGroup),
-          mBuffer(nullptr) {
-          mStatus.retval = Result::NOT_INITIALIZED;
-          mStatus.reply.read = 0;
-          mStatus.replyTo = {0};
-          mParameters.params = {0};
-          mParameters.command = {0};
-          }
+          mBuffer(nullptr) {}
     bool init() {
         mBuffer.reset(new (std::nothrow) uint8_t[mDataMQ->getQuantumCount()]);
         return mBuffer != nullptr;
     }
     virtual ~ReadThread() {}
 
-private:
-    std::atomic<bool> *mStop;
-    audio_stream_in_t *mStream;
-    StreamIn::CommandMQ *mCommandMQ;
-    StreamIn::DataMQ *mDataMQ;
-    StreamIn::StatusMQ *mStatusMQ;
-    EventFlag *mEfGroup;
+   private:
+    std::atomic<bool>* mStop;
+    audio_stream_in_t* mStream;
+    StreamIn::CommandMQ* mCommandMQ;
+    StreamIn::DataMQ* mDataMQ;
+    StreamIn::StatusMQ* mStatusMQ;
+    EventFlag* mEfGroup;
     std::unique_ptr<uint8_t[]> mBuffer;
     IStreamIn::ReadParameters mParameters;
     IStreamIn::ReadStatus mStatus;
@@ -120,16 +116,16 @@ bool ReadThread::threadLoop() {
         }
         mStatus.replyTo = mParameters.command;
         switch (mParameters.command) {
-        case IStreamIn::ReadCommand::READ:
-            doRead();
-            break;
-        case IStreamIn::ReadCommand::GET_CAPTURE_POSITION:
-            doGetCapturePosition();
-            break;
-        default:
+            case IStreamIn::ReadCommand::READ:
+                doRead();
+                break;
+            case IStreamIn::ReadCommand::GET_CAPTURE_POSITION:
+                doGetCapturePosition();
+                break;
+            default:
                 ALOGE("Unknown read thread command code %d", mParameters.command);
-            mStatus.retval = Result::NOT_SUPPORTED;
-            break;
+                mStatus.retval = Result::NOT_SUPPORTED;
+                break;
         }
         if (!mStatusMQ->write(&mStatus)) {
             ALOGW("status message queue write failed");
@@ -142,7 +138,7 @@ bool ReadThread::threadLoop() {
 
 }  // namespace
 
-StreamIn::StreamIn(const sp<Device> &device, audio_stream_in_t *stream)
+StreamIn::StreamIn(const sp<Device>& device, audio_stream_in_t* stream)
     : mDevice(device),
       mStream(stream),
       mStreamCommon(new Stream(&stream->common)),
@@ -162,7 +158,9 @@ StreamIn::~StreamIn() {
         status_t status = EventFlag::deleteEventFlag(&mEfGroup);
         ALOGE_IF(status, "read MQ event flag deletion error: %s", strerror(-status));
     }
+#if MAJOR_VERSION <= 5
     mDevice->closeInputStream(mStream);
+#endif
     mStream = nullptr;
 }
 
@@ -182,6 +180,15 @@ Return<uint64_t> StreamIn::getBufferSize() {
 Return<uint32_t> StreamIn::getSampleRate() {
     return mStreamCommon->getSampleRate();
 }
+
+#if MAJOR_VERSION == 2
+Return<void> StreamIn::getSupportedChannelMasks(getSupportedChannelMasks_cb _hidl_cb) {
+    return mStreamCommon->getSupportedChannelMasks(_hidl_cb);
+}
+Return<void> StreamIn::getSupportedSampleRates(getSupportedSampleRates_cb _hidl_cb) {
+    return mStreamCommon->getSupportedSampleRates(_hidl_cb);
+}
+#endif
 
 Return<void> StreamIn::getSupportedChannelMasks(AudioFormat format,
                                                 getSupportedChannelMasks_cb _hidl_cb) {
@@ -236,6 +243,31 @@ Return<Result> StreamIn::setHwAvSync(uint32_t hwAvSync) {
     return mStreamCommon->setHwAvSync(hwAvSync);
 }
 
+#if MAJOR_VERSION == 2
+Return<Result> StreamIn::setConnectedState(const DeviceAddress& address, bool connected) {
+    return mStreamCommon->setConnectedState(address, connected);
+}
+
+Return<AudioDevice> StreamIn::getDevice() {
+    return mStreamCommon->getDevice();
+}
+
+Return<Result> StreamIn::setDevice(const DeviceAddress& address) {
+    return mStreamCommon->setDevice(address);
+}
+
+Return<void> StreamIn::getParameters(const hidl_vec<hidl_string>& keys, getParameters_cb _hidl_cb) {
+    return mStreamCommon->getParameters(keys, _hidl_cb);
+}
+
+Return<Result> StreamIn::setParameters(const hidl_vec<ParameterValue>& parameters) {
+    return mStreamCommon->setParameters(parameters);
+}
+
+Return<void> StreamIn::debugDump(const hidl_handle& fd) {
+    return mStreamCommon->debugDump(fd);
+}
+#elif MAJOR_VERSION >= 4
 Return<void> StreamIn::getDevices(getDevices_cb _hidl_cb) {
     return mStreamCommon->getDevices(_hidl_cb);
 }
@@ -252,6 +284,7 @@ Return<Result> StreamIn::setParameters(const hidl_vec<ParameterValue>& context,
                                        const hidl_vec<ParameterValue>& parameters) {
     return mStreamCommon->setParameters(context, parameters);
 }
+#endif
 
 Return<Result> StreamIn::start() {
     return mStreamMmap->start();
@@ -278,6 +311,9 @@ Return<Result> StreamIn::close() {
     if (mEfGroup) {
         mEfGroup->wake(static_cast<uint32_t>(MessageQueueFlagBits::NOT_FULL));
     }
+#if MAJOR_VERSION >= 6
+    mDevice->closeInputStream(mStream);
+#endif
     return Result::OK;
 }
 
@@ -326,14 +362,10 @@ Return<void> StreamIn::prepareForReading(uint32_t frameSize, uint32_t framesCoun
         sendError(Result::INVALID_ARGUMENTS);
         return Void();
     }
-    // A message queue asserts if it can not handle the requested buffer,
-    // thus the client has to guess the maximum size it can handle
-    // Choose an arbitrary margin for the overhead of a message queue
-    size_t metadataOverhead = 100000;
-    if (frameSize >
-        (std::numeric_limits<size_t>::max() - metadataOverhead) / framesCount) {
-        ALOGE("Buffer too big: %u*%u bytes can not fit in a message queue",
-              frameSize, framesCount);
+
+    if (frameSize > Stream::MAX_BUFFER_SIZE / framesCount) {
+        ALOGE("Buffer too big: %u*%u bytes > MAX_BUFFER_SIZE (%u)", frameSize, framesCount,
+              Stream::MAX_BUFFER_SIZE);
         sendError(Result::INVALID_ARGUMENTS);
         return Void();
     }
@@ -347,10 +379,10 @@ Return<void> StreamIn::prepareForReading(uint32_t frameSize, uint32_t framesCoun
         sendError(Result::INVALID_ARGUMENTS);
         return Void();
     }
-    EventFlag *tempRawEfGroup{};
+    EventFlag* tempRawEfGroup{};
     status = EventFlag::createEventFlag(tempDataMQ->getEventFlagWord(), &tempRawEfGroup);
-    std::unique_ptr<EventFlag, void (*)(EventFlag *)> tempElfGroup(
-    tempRawEfGroup, [](auto * ef) { EventFlag::deleteEventFlag(&ef); });
+    std::unique_ptr<EventFlag, void (*)(EventFlag*)> tempElfGroup(
+        tempRawEfGroup, [](auto* ef) { EventFlag::deleteEventFlag(&ef); });
     if (status != OK || !tempElfGroup) {
         ALOGE("failed creating event flag for data MQ: %s", strerror(-status));
         sendError(Result::INVALID_ARGUMENTS);
@@ -419,6 +451,7 @@ Return<void> StreamIn::debug(const hidl_handle& fd, const hidl_vec<hidl_string>&
     return mStreamCommon->debug(fd, options);
 }
 
+#if MAJOR_VERSION >= 4
 Return<void> StreamIn::updateSinkMetadata(const SinkMetadata& sinkMetadata) {
     if (mStream->update_sink_metadata == nullptr) {
         return Void();  // not supported by the HAL
@@ -428,6 +461,7 @@ Return<void> StreamIn::updateSinkMetadata(const SinkMetadata& sinkMetadata) {
     for (auto& metadata : sinkMetadata.tracks) {
         record_track_metadata halTrackMetadata = {
             .source = static_cast<audio_source_t>(metadata.source), .gain = metadata.gain};
+#if MAJOR_VERSION >= 5
         if (metadata.destination.getDiscriminator() ==
             RecordTrackMetadata::Destination::hidl_discriminator::device) {
             halTrackMetadata.dest_device =
@@ -435,8 +469,8 @@ Return<void> StreamIn::updateSinkMetadata(const SinkMetadata& sinkMetadata) {
             strncpy(halTrackMetadata.dest_device_address,
                     deviceAddressToHal(metadata.destination.device()).c_str(),
                     AUDIO_DEVICE_MAX_ADDRESS_LEN);
-            halTrackMetadata.dest_device_address[AUDIO_DEVICE_MAX_ADDRESS_LEN - 1] = '\0';
         }
+#endif
         halTracks.push_back(halTrackMetadata);
     }
     const sink_metadata_t halMetadata = {
@@ -465,10 +499,16 @@ Return<void> StreamIn::getActiveMicrophones(getActiveMicrophones_cb _hidl_cb) {
     _hidl_cb(retval, microphones);
     return Void();
 }
+#endif
 
+#if MAJOR_VERSION >= 5
 Return<Result> StreamIn::setMicrophoneDirection(MicrophoneDirection direction) {
     if (mStream->set_microphone_direction == nullptr) {
         return Result::NOT_SUPPORTED;
+    }
+    if (!common::utils::isValidHidlEnum(direction)) {
+        ALOGE("%s: Invalid direction %d", __func__, direction);
+        return Result::INVALID_ARGUMENTS;
     }
     return Stream::analyzeStatus(
             "set_microphone_direction",
@@ -480,9 +520,15 @@ Return<Result> StreamIn::setMicrophoneFieldDimension(float zoom) {
     if (mStream->set_microphone_field_dimension == nullptr) {
         return Result::NOT_SUPPORTED;
     }
+    if (std::isnan(zoom) || zoom < -1 || zoom > 1) {
+        ALOGE("%s: Invalid zoom %f", __func__, zoom);
+        return Result::INVALID_ARGUMENTS;
+    }
     return Stream::analyzeStatus("set_microphone_field_dimension",
                                  mStream->set_microphone_field_dimension(mStream, zoom));
 }
+
+#endif
 
 }  // namespace implementation
 }  // namespace CPP_VERSION

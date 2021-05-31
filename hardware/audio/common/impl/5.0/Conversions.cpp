@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ namespace audio {
 namespace CPP_VERSION {
 namespace implementation {
 
-std::string deviceAddressToHal(const DeviceAddress &address) {
+std::string deviceAddressToHal(const DeviceAddress& address) {
     // HAL assumes that the address is NUL-terminated.
     char halAddress[AUDIO_DEVICE_MAX_ADDRESS_LEN];
     memset(halAddress, 0, sizeof(halAddress));
@@ -53,6 +53,7 @@ std::string deviceAddressToHal(const DeviceAddress &address) {
     return halAddress;
 }
 
+#if MAJOR_VERSION >= 4
 status_t deviceAddressFromHal(audio_devices_t device, const char* halAddress,
                               DeviceAddress* address) {
     if (address == nullptr) {
@@ -175,6 +176,7 @@ bool halToMicrophoneCharacteristics(MicrophoneInfo* pDst,
     }
     return status;
 }
+#endif
 
 }  // namespace implementation
 }  // namespace CPP_VERSION

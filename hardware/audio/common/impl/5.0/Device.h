@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,18 +59,18 @@ using ::vendor::mediatek::hardware::audio::V5_1::IMTKPrimaryDeviceCallback;
 using ::vendor::mediatek::hardware::audio::V5_1::IMTKPrimaryDevice;
 
 struct Device : public IDevice, public ParametersUtil {
-    explicit Device(audio_hw_device_mtk_t *device);
+    explicit Device(audio_hw_device_mtk_t* device);
 
     // Methods from ::android::hardware::audio::CPP_VERSION::IDevice follow.
-    Return<Result> initCheck()  override;
-    Return<Result> setMasterVolume(float volume)  override;
-    Return<void> getMasterVolume(getMasterVolume_cb _hidl_cb)  override;
-    Return<Result> setMicMute(bool mute)  override;
-    Return<void> getMicMute(getMicMute_cb _hidl_cb)  override;
-    Return<Result> setMasterMute(bool mute)  override;
-    Return<void> getMasterMute(getMasterMute_cb _hidl_cb)  override;
-    Return<void> getInputBufferSize(const AudioConfig &config,
-                                    getInputBufferSize_cb _hidl_cb)  override;
+    Return<Result> initCheck() override;
+    Return<Result> setMasterVolume(float volume) override;
+    Return<void> getMasterVolume(getMasterVolume_cb _hidl_cb) override;
+    Return<Result> setMicMute(bool mute) override;
+    Return<void> getMicMute(getMicMute_cb _hidl_cb) override;
+    Return<Result> setMasterMute(bool mute) override;
+    Return<void> getMasterMute(getMasterMute_cb _hidl_cb) override;
+    Return<void> getInputBufferSize(const AudioConfig& config,
+                                    getInputBufferSize_cb _hidl_cb) override;
 
     std::tuple<Result, sp<IStreamOut>> openOutputStreamImpl(int32_t ioHandle,
                                                             const DeviceAddress& device,
@@ -80,7 +80,14 @@ struct Device : public IDevice, public ParametersUtil {
     std::tuple<Result, sp<IStreamIn>> openInputStreamImpl(
         int32_t ioHandle, const DeviceAddress& device, const AudioConfig& config,
         AudioInputFlagBitfield flags, AudioSource source, AudioConfig* suggestedConfig);
-
+#if MAJOR_VERSION == 2
+    Return<void> openOutputStream(int32_t ioHandle, const DeviceAddress& device,
+                                  const AudioConfig& config, AudioOutputFlagBitfield flags,
+                                  openOutputStream_cb _hidl_cb) override;
+    Return<void> openInputStream(int32_t ioHandle, const DeviceAddress& device,
+                                 const AudioConfig& config, AudioInputFlagBitfield flags,
+                                 AudioSource source, openInputStream_cb _hidl_cb) override;
+#elif MAJOR_VERSION >= 4
     Return<void> openOutputStream(int32_t ioHandle, const DeviceAddress& device,
                                   const AudioConfig& config, AudioOutputFlagBitfield flags,
                                   const SourceMetadata& sourceMetadata,
@@ -89,17 +96,25 @@ struct Device : public IDevice, public ParametersUtil {
                                  const AudioConfig& config, AudioInputFlagBitfield flags,
                                  const SinkMetadata& sinkMetadata,
                                  openInputStream_cb _hidl_cb) override;
+#endif
 
-    Return<bool> supportsAudioPatches()  override;
+    Return<bool> supportsAudioPatches() override;
     Return<void> createAudioPatch(const hidl_vec<AudioPortConfig>& sources,
-                                  const hidl_vec<AudioPortConfig> &sinks,
-                                  createAudioPatch_cb _hidl_cb)  override;
-    Return<Result> releaseAudioPatch(int32_t patch)  override;
-    Return<void> getAudioPort(const AudioPort &port, getAudioPort_cb _hidl_cb)  override;
-    Return<Result> setAudioPortConfig(const AudioPortConfig &config)  override;
+                                  const hidl_vec<AudioPortConfig>& sinks,
+                                  createAudioPatch_cb _hidl_cb) override;
+    Return<Result> releaseAudioPatch(int32_t patch) override;
+    Return<void> getAudioPort(const AudioPort& port, getAudioPort_cb _hidl_cb) override;
+    Return<Result> setAudioPortConfig(const AudioPortConfig& config) override;
 
-    Return<Result> setScreenState(bool turnedOn)  override;
+    Return<Result> setScreenState(bool turnedOn) override;
 
+#if MAJOR_VERSION == 2
+    Return<AudioHwSync> getHwAvSync() override;
+    Return<void> getParameters(const hidl_vec<hidl_string>& keys,
+                               getParameters_cb _hidl_cb) override;
+    Return<Result> setParameters(const hidl_vec<ParameterValue>& parameters) override;
+    Return<void> debugDump(const hidl_handle& fd) override;
+#elif MAJOR_VERSION >= 4
     Return<void> getHwAvSync(getHwAvSync_cb _hidl_cb) override;
     Return<void> getParameters(const hidl_vec<ParameterValue>& context,
                                const hidl_vec<hidl_string>& keys,
@@ -108,7 +123,15 @@ struct Device : public IDevice, public ParametersUtil {
                                  const hidl_vec<ParameterValue>& parameters) override;
     Return<void> getMicrophones(getMicrophones_cb _hidl_cb) override;
     Return<Result> setConnectedState(const DeviceAddress& address, bool connected) override;
-
+#endif
+#if MAJOR_VERSION >= 6
+    Return<Result> close() override;
+    Return<Result> addDeviceEffect(AudioPortHandle device, uint64_t effectId) override;
+    Return<Result> removeDeviceEffect(AudioPortHandle device, uint64_t effectId) override;
+    Return<void> updateAudioPatch(int32_t previousPatch, const hidl_vec<AudioPortConfig>& sources,
+                                  const hidl_vec<AudioPortConfig>& sinks,
+                                  createAudioPatch_cb _hidl_cb) override;
+#endif
     Return<void> debug(const hidl_handle& fd, const hidl_vec<hidl_string>& options) override;
 
     // Utility methods for extending interfaces.
@@ -124,16 +147,19 @@ struct Device : public IDevice, public ParametersUtil {
 
   private:
     bool mIsClosed;
-    audio_hw_device_mtk_t *mDevice;
+    audio_hw_device_mtk_t* mDevice;
     int mOpenedStreamsCount = 0;
 
     virtual ~Device();
 
     Result doClose();
+    std::tuple<Result, AudioPatchHandle> createOrUpdateAudioPatch(
+            AudioPatchHandle patch, const hidl_vec<AudioPortConfig>& sources,
+            const hidl_vec<AudioPortConfig>& sinks);
 
     // Methods from ParametersUtil.
-    char *halGetParameters(const char *keys) override;
-    int halSetParameters(const char *keysAndValues) override;
+    char* halGetParameters(const char* keys) override;
+    int halSetParameters(const char* keysAndValues) override;
 
     uint32_t version() const { return mDevice->common.version; }
 

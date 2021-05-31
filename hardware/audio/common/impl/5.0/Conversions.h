@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,12 @@ namespace implementation {
 using namespace ::android::hardware::audio::common::CPP_VERSION;
 using namespace ::android::hardware::audio::CPP_VERSION;
 
-std::string deviceAddressToHal(const DeviceAddress &address);
+std::string deviceAddressToHal(const DeviceAddress& address);
 
+#if MAJOR_VERSION >= 4
 bool halToMicrophoneCharacteristics(MicrophoneInfo* pDst,
                                     const struct audio_microphone_characteristic_t& src);
+#endif
 
 }  // namespace implementation
 }  // namespace CPP_VERSION

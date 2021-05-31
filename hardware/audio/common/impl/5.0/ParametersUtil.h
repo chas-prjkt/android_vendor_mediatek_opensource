@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,28 +37,28 @@ using namespace ::android::hardware::audio::common::CPP_VERSION;
 using namespace ::android::hardware::audio::CPP_VERSION;
 
 class ParametersUtil {
-public:
+   public:
     Result setParam(const char* name, const char* value);
-    Result getParam(const char *name, bool *value);
-    Result getParam(const char *name, int *value);
+    Result getParam(const char* name, bool* value);
+    Result getParam(const char* name, int* value);
     Result getParam(const char* name, String8* value, AudioParameter context = {});
     void getParametersImpl(
         const hidl_vec<ParameterValue>& context, const hidl_vec<hidl_string>& keys,
         std::function<void(Result retval, const hidl_vec<ParameterValue>& parameters)> cb);
-    std::unique_ptr<AudioParameter> getParams(const AudioParameter &keys);
-    Result setParam(const char *name, bool value);
-    Result setParam(const char *name, int value);
+    std::unique_ptr<AudioParameter> getParams(const AudioParameter& keys);
+    Result setParam(const char* name, bool value);
+    Result setParam(const char* name, int value);
     Result setParam(const char* name, float value);
     Result setParametersImpl(const hidl_vec<ParameterValue>& context,
                              const hidl_vec<ParameterValue>& parameters);
-    Result setParams(const AudioParameter &param);
+    Result setParams(const AudioParameter& param);
     Result setParam(const char* name, const DeviceAddress& address);
 
-protected:
+   protected:
     virtual ~ParametersUtil() {}
 
-    virtual char *halGetParameters(const char *keys) = 0;
-    virtual int halSetParameters(const char *keysAndValues) = 0;
+    virtual char* halGetParameters(const char* keys) = 0;
+    virtual int halSetParameters(const char* keysAndValues) = 0;
 };
 
 }  // namespace implementation

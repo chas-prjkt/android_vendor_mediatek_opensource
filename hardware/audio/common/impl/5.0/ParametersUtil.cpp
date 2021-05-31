@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,21 +31,21 @@ namespace implementation {
  */
 static Result getHalStatusToResult(status_t status) {
     switch (status) {
-    case OK:
-        return Result::OK;
-    case BAD_VALUE:  // Nothing was returned, probably because the HAL does
-        // not handle it
-        return Result::NOT_SUPPORTED;
-    case INVALID_OPERATION:  // Conversion from string to the requested type
-        // failed
-        return Result::INVALID_ARGUMENTS;
-    default:  // Should not happen
-        ALOGW("Unexpected status returned by getParam: %u", status);
-        return Result::INVALID_ARGUMENTS;
+        case OK:
+            return Result::OK;
+        case BAD_VALUE:  // Nothing was returned, probably because the HAL does
+                         // not handle it
+            return Result::NOT_SUPPORTED;
+        case INVALID_OPERATION:  // Conversion from string to the requested type
+                                 // failed
+            return Result::INVALID_ARGUMENTS;
+        default:  // Should not happen
+            ALOGW("Unexpected status returned by getParam: %u", status);
+            return Result::INVALID_ARGUMENTS;
     }
 }
 
-Result ParametersUtil::getParam(const char *name, bool *value) {
+Result ParametersUtil::getParam(const char* name, bool* value) {
     String8 halValue;
     Result retval = getParam(name, &halValue);
     *value = false;
@@ -58,7 +58,7 @@ Result ParametersUtil::getParam(const char *name, bool *value) {
     return retval;
 }
 
-Result ParametersUtil::getParam(const char *name, int *value) {
+Result ParametersUtil::getParam(const char* name, int* value) {
     const String8 halName(name);
     AudioParameter keys;
     keys.addKey(halName);
@@ -66,7 +66,7 @@ Result ParametersUtil::getParam(const char *name, int *value) {
     return getHalStatusToResult(params->getInt(halName, *value));
 }
 
-Result ParametersUtil::getParam(const char *name, String8 *value, AudioParameter context) {
+Result ParametersUtil::getParam(const char* name, String8* value, AudioParameter context) {
     const String8 halName(name);
     context.addKey(halName);
     std::unique_ptr<AudioParameter> params = getParams(context);
@@ -104,7 +104,7 @@ void ParametersUtil::getParametersImpl(
 
 std::unique_ptr<AudioParameter> ParametersUtil::getParams(const AudioParameter& keys) {
     String8 paramsAndValues;
-    char *halValues = halGetParameters(keys.keysToString().string());
+    char* halValues = halGetParameters(keys.keysToString().string());
     if (halValues != NULL) {
         paramsAndValues.setTo(halValues);
         free(halValues);
@@ -120,13 +120,13 @@ Result ParametersUtil::setParam(const char* name, const char* value) {
     return setParams(param);
 }
 
-Result ParametersUtil::setParam(const char *name, bool value) {
+Result ParametersUtil::setParam(const char* name, bool value) {
     AudioParameter param;
     param.add(String8(name), String8(value ? AudioParameter::valueOn : AudioParameter::valueOff));
     return setParams(param);
 }
 
-Result ParametersUtil::setParam(const char *name, int value) {
+Result ParametersUtil::setParam(const char* name, int value) {
     AudioParameter param;
     param.addInt(String8(name), value);
     return setParams(param);
@@ -139,7 +139,7 @@ Result ParametersUtil::setParam(const char* name, float value) {
 }
 
 Result ParametersUtil::setParametersImpl(const hidl_vec<ParameterValue>& context,
-    const hidl_vec<ParameterValue> &parameters) {
+                                         const hidl_vec<ParameterValue>& parameters) {
     AudioParameter params;
     for (auto& pair : context) {
         params.add(String8(pair.key.c_str()), String8(pair.value.c_str()));
@@ -148,14 +148,14 @@ Result ParametersUtil::setParametersImpl(const hidl_vec<ParameterValue>& context
         params.add(String8(parameters[i].key.c_str()), String8(parameters[i].value.c_str()));
     }
     return setParams(params);
-    }
+}
 Result ParametersUtil::setParam(const char* name, const DeviceAddress& address) {
     AudioParameter params(String8(deviceAddressToHal(address).c_str()));
     params.addInt(String8(name), int(address.device));
     return setParams(params);
 }
 
-Result ParametersUtil::setParams(const AudioParameter &param) {
+Result ParametersUtil::setParams(const AudioParameter& param) {
     int halStatus = halSetParameters(param.toString().string());
     return util::analyzeStatus(halStatus);
 }
