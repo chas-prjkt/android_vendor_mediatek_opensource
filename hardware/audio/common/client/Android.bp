@@ -1,0 +1,45 @@
+cc_library_shared {
+    name: "libaudioprimarydevicehalifclient",
+
+    srcs: [
+        "MTKPrimaryDevicesHalClientInterface.cpp",
+        "MTKPrimaryDevicesHalClientImpl.cpp",
+        "ConversionHelperHidl.cpp",
+        "HalDeathHandlerHidl.cpp",
+        "MTKDeviceHalHidl.cpp",
+        "MTKDevicesFactoryHalHidl.cpp",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libutils",
+        "libbase",
+        "libhidlbase",
+        "android.hardware.audio@6.0",
+        "android.hardware.audio.common@6.0",
+        "android.hardware.audio.common@6.0-util",
+        "libmedia_helper",
+        "libbinder",
+    ],
+
+    header_libs: [
+        "libaudioclient_headers",
+        "libaudio_system_headers",
+        "libmedia_headers",
+    ],
+    static_libs: [],
+
+    include_dirs: [
+        "vendor/mediatek/opensource/hardware/audio/common/include",
+        "frameworks/av/include",
+    ],
+
+    proprietary: true,
+    owner: "mtk",
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+}

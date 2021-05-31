@@ -18,15 +18,15 @@
 
 #define LOG_TAG "MTKDeviceHalHidl"
 
-#include <android/hardware/audio/5.0/IPrimaryDevice.h>
+#include <android/hardware/audio/6.0/IPrimaryDevice.h>
 #include <cutils/native_handle.h>
 #include <hwbinder/IPCThreadState.h>
 #include <utils/Log.h>
 #include "MTKDeviceHalHidl.h"
 
-using ::android::hardware::audio::V5_0::IPrimaryDevice;
-using ::android::hardware::audio::V5_0::ParameterValue;
-using ::android::hardware::audio::V5_0::Result;
+using ::android::hardware::audio::V6_0::IPrimaryDevice;
+using ::android::hardware::audio::V6_0::ParameterValue;
+using ::android::hardware::audio::V6_0::Result;
 using ::android::hardware::hidl_string;
 using ::android::hardware::hidl_vec;
 

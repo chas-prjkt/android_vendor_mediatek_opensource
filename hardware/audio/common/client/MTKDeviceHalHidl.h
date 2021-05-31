@@ -17,11 +17,11 @@
 #ifndef ANDROID_HARDWARE_DEVICE_HAL_HIDL_H
 #define ANDROID_HARDWARE_DEVICE_HAL_HIDL_H
 
-#include <android/hardware/audio/5.0/IDevice.h>
+#include <android/hardware/audio/6.0/IDevice.h>
 #include "MTKDeviceHalInterface.h"
 #include "ConversionHelperHidl.h"
 
-using ::android::hardware::audio::V5_0::IDevice;
+using ::android::hardware::audio::V6_0::IDevice;
 using ::android::hardware::Return;
 
 namespace android {

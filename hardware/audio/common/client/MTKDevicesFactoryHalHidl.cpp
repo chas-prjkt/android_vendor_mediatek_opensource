@@ -19,7 +19,7 @@
 #define LOG_TAG "MTKDevicesFactoryHalHidl"
 //#define LOG_NDEBUG 0
 
-#include <android/hardware/audio/5.0/IDevice.h>
+#include <android/hardware/audio/6.0/IDevice.h>
 #include "HalDeathHandler.h"
 #include <utils/Log.h>
 
@@ -27,8 +27,8 @@
 #include "MTKDeviceHalHidl.h"
 #include "MTKDevicesFactoryHalHidl.h"
 
-using ::android::hardware::audio::V5_0::IDevice;
-using ::android::hardware::audio::V5_0::Result;
+using ::android::hardware::audio::V6_0::IDevice;
+using ::android::hardware::audio::V6_0::Result;
 using ::android::hardware::Return;
 
 namespace android {

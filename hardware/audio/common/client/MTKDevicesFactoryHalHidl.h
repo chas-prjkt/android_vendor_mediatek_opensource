@@ -17,14 +17,14 @@
 #ifndef MTK_HARDWARE_DEVICES_FACTORY_HAL_HIDL_H
 #define MTK_HARDWARE_DEVICES_FACTORY_HAL_HIDL_H
 
-#include <android/hardware/audio/5.0/IDevicesFactory.h>
+#include <android/hardware/audio/6.0/IDevicesFactory.h>
 #include "MTKDevicesFactoryHalInterface.h"
 #include <utils/Errors.h>
 #include <utils/RefBase.h>
 
 #include "MTKDeviceHalHidl.h"
 
-using ::android::hardware::audio::V5_0::IDevicesFactory;
+using ::android::hardware::audio::V6_0::IDevicesFactory;
 
 namespace android {
 

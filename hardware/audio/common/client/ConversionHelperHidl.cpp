@@ -22,7 +22,7 @@
 
 #include "ConversionHelperHidl.h"
 
-using ::android::hardware::audio::V5_0::Result;
+using ::android::hardware::audio::V6_0::Result;
 
 namespace android {
 
