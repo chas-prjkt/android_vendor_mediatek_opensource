@@ -3,6 +3,9 @@ MTK_HARD_ROOT_PATH := $(call my-dir)
 # MTK Connectivity
 include $(MTK_HARD_ROOT_PATH)/connectivity/Android.mk
 
+# MTK Consumerir
+include $(MTK_HARD_ROOT_PATH)/consumerir/Android.mk
+
 # MTK Power
 include $(MTK_HARD_ROOT_PATH)/power/service/Power/1.3/Android.mk
 include $(MTK_HARD_ROOT_PATH)/power/service/main/Android.mk
