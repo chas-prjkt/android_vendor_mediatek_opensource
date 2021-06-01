@@ -12,4 +12,4 @@ include $(MTK_HARD_ROOT_PATH)/power/lib/powerhal/Android.mk
 include $(MTK_HARD_ROOT_PATH)/power_util/mtkperf_client/Android.mk
 include $(MTK_HARD_ROOT_PATH)/power_util/powerhalwrap_v_2_0/Android.mk
 include $(MTK_HARD_ROOT_PATH)/power/module/Android.mk
-include $(MTK_HARD_ROOT_PATH)/power/config/mt6785/Android.mk
+include $(MTK_HARD_ROOT_PATH)/power/config/Android.mk

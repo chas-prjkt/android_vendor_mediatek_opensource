@@ -10,9 +10,6 @@ $(call inherit-product, vendor/mediatek/opensource/hardware/connectivity/connect
 # Call Interfaces (vendor)
 $(call inherit-product, vendor/mediatek/opensource/mtk-interfaces.mk)
 
-# Call ProjectConfig For Begonia
-$(call inherit-product, vendor/mediatek/opensource/BegoniaConfig.mk)
-
 # External
 PRODUCT_PACKAGES += \
     libladder \
@@ -23,7 +20,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     fstb.cfg \
     libpowerhal \
-    power.mt6785 \
     power.default \
     powerscntbl.xml \
     libmtkperf_client \
