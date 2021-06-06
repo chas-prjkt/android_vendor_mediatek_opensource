@@ -12,14 +12,25 @@ $(call inherit-product, vendor/mediatek/opensource/mtk-interfaces.mk)
 
 # External
 PRODUCT_PACKAGES += \
-    libladder \
     libudf \
+    libhwm \
+    libnvram \
+    libladder \
+    libfile_op \
+    ccci_mdinit \
+    nvram_daemon \
+    libnvram_sec \
+    libcustom_nvram \
     libmtkaudio_utils \
+    libnvram_daemon_callback \
+    vendor.mediatek.hardware.nvram@1.1-impl \
+    vendor.mediatek.hardware.nvram@1.1-service
 
 # hardware
 PRODUCT_PACKAGES += \
     fstb.cfg \
     libpowerhal \
+    libccci_util \
     libfpspolicy \
     power.default \
     powerscntbl.xml \

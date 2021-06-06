@@ -1,5 +1,8 @@
 MTK_HARD_ROOT_PATH := $(call my-dir)
 
+# MTK CCCI
+include $(MTK_HARD_ROOT_PATH)/ccci/Android.mk
+
 # MTK Connectivity
 include $(MTK_HARD_ROOT_PATH)/connectivity/Android.mk
 
