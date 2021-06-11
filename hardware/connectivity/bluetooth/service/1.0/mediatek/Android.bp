@@ -1,0 +1,83 @@
+cc_library_static {
+    name: "vendor.mediatek.hardware.bluetooth-hci",
+    vendor: true,
+    defaults: ["mtk_bt_hal_defaults"],
+    local_include_dirs: ["."],
+    include_dirs: [
+        "system/core/base/include",
+        "vendor/mediatek/opensource/hardware/connectivity/bluetooth/service/1.0/",
+    ],
+
+    srcs: [
+        "hci_hal_debugger.cc",
+        "hci_hal_msg_handler.cc",
+        "hci_hal_state_machine.cc",
+    ],
+    export_include_dirs: ["."],
+    shared_libs: [
+        "android.hardware.bluetooth@1.0",
+        "libbase",
+        "libhidlbase",
+        "liblog",
+        "libcutils",
+        "libutils",
+    ],
+}
+
+cc_library_static {
+    name: "vendor.mediatek.hardware.bluetooth-fake",
+    vendor: true,
+    defaults: ["mtk_bt_hal_defaults"],
+    local_include_dirs: ["."],
+    include_dirs: [
+        "system/core/base/include",
+        "vendor/mediatek/opensource/hardware/connectivity/bluetooth/service/1.0/",
+    ],
+
+    srcs: [
+        "test/fake_vendor_interface.cc",
+    ],
+    export_include_dirs: ["."],
+    shared_libs: [
+        "android.hardware.bluetooth@1.0",
+        "libbase",
+        "libhidlbase",
+        "liblog",
+    ],
+}
+
+
+// MTK hal tests for target
+// ========================================================
+cc_test {
+    name: "mtk-bt-hal-unit-test",
+    vendor: true,
+    defaults: ["mtk_bt_hal_defaults"],
+    test_suites: ["device-tests"],
+    local_include_dirs: [
+        ".",
+        "test",
+    ],
+	include_dirs: [
+		"system/core/base/include",
+		"vendor/mediatek/opensource/hardware/connectivity/bluetooth/service/1.0/",
+	],
+    srcs: [
+        "test/hci_hal_debugger_unittest.cc",
+        "test/hci_hal_msg_handler_unittest.cc",
+        "test/hci_hal_state_machine_unittest.cc",
+    ],
+    shared_libs: [
+    	"android.hardware.bluetooth@1.0",
+        "libbase",
+        "libhidlbase",
+        "liblog",
+        "libcutils",
+        "libutils",
+    ],
+    static_libs: [
+        "vendor.mediatek.hardware.bluetooth-hci",
+        "vendor.mediatek.hardware.bluetooth-fake",
+        "libgmock",
+    ],
+}
