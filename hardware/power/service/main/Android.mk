@@ -38,6 +38,7 @@ LOCAL_SHARED_LIBRARIES := liblog \
         vendor.mediatek.hardware.mtkpower@1.0
 
 LOCAL_MODULE := vendor.mediatek.hardware.mtkpower@1.0-service
+LOCAL_VINTF_FRAGMENTS := vendor.mediatek.hardware.mtkpower@1.0-default.xml
 LOCAL_INIT_RC := vendor.mediatek.hardware.mtkpower@1.0-service.rc \
                  vendor.mediatek.hardware.mtkpower@1.0-init.rc
 LOCAL_PROPRIETARY_MODULE := true

@@ -29,6 +29,7 @@ LOCAL_SHARED_LIBRARIES := liblog \
         vendor.mediatek.hardware.power@2.1
 
 LOCAL_MODULE := vendor.mediatek.hardware.power@2.1-impl
+LOCAL_VINTF_FRAGMENTS := vendor.mediatek.hardware.power@2.1-impl.xml
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_MODULE_RELATIVE_PATH := hw
 LOCAL_MODULE_OWNER := mtk

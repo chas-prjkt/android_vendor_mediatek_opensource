@@ -28,6 +28,7 @@ LOCAL_SHARED_LIBRARIES := liblog \
         vendor.mediatek.hardware.mtkpower@1.0
 
 LOCAL_MODULE := android.hardware.power@1.3-impl-mediatek
+LOCAL_VINTF_FRAGMENTS := android.hardware.power@1.3-impl-mediatek.xml
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_MODULE_RELATIVE_PATH := hw
 LOCAL_MODULE_OWNER := mtk
