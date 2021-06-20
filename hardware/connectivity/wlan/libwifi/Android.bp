@@ -1,0 +1,26 @@
+cc_prebuilt_library_shared {
+    name: "libwifi-hal-mtk",
+    vendor: true,
+
+    multilib: {
+        lib64: {
+            shared_libs: [
+                "libbase",
+                "libcutils",
+                "liblog",
+                "libnl",
+                "libutils",
+                "libc++",
+                "libc",
+                "libm",
+                "libdl",
+            ],
+
+            srcs: ["arm64/libwifi-hal-mtk.so"],
+        },
+    },
+    export_header_lib_headers: ["libhardware_legacy_headers"],
+    header_libs: ["libhardware_legacy_headers"],
+    export_include_dirs: ["include"],
+    compile_multilib: "64",
+}

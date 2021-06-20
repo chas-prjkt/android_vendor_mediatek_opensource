@@ -29,6 +29,9 @@ endif
 LOCAL_CFLAGS += -Wno-error=implicit-fallthrough
 LOCAL_CFLAGS += -DPLATFORM_VERSION=$(PLATFORM_VERSION)
 
+LOCAL_C_INCLUDES := \
+    vendor/mediatek/wifi/libwifi/include
+
 LOCAL_SRC_FILES := \
     hidl_struct_util.cpp \
     hidl_sync_util.cpp \
@@ -55,7 +58,7 @@ LOCAL_SHARED_LIBRARIES := \
     liblog \
     libnl \
     libutils \
-    libwifi-hal \
+    libwifi-hal-mtk \
     libwifi-system-iface \
     android.hardware.wifi@1.0 \
     android.hardware.wifi@1.1 \
@@ -85,7 +88,7 @@ LOCAL_SHARED_LIBRARIES := \
     liblog \
     libnl \
     libutils \
-    libwifi-hal \
+    libwifi-hal-mtk \
     libwifi-system-iface \
     android.hardware.wifi@1.0 \
     android.hardware.wifi@1.1 \
@@ -119,7 +122,7 @@ LOCAL_SHARED_LIBRARIES := \
     liblog \
     libnl \
     libutils \
-    libwifi-hal \
+    libwifi-hal-mtk \
     libwifi-system-iface \
     android.hardware.wifi@1.0 \
     android.hardware.wifi@1.1 \
