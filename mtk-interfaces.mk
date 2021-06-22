@@ -7,6 +7,7 @@ PRODUCT_PACKAGES += \
     vendor.mediatek.hardware.audio@4.1.vendor \
     vendor.mediatek.hardware.audio@5.1.vendor \
     vendor.mediatek.hardware.audio@6.1.vendor \
+    vendor.mediatek.hardware.bluetooth.audio@2.1.vendor \
     vendor.mediatek.hardware.camera.advcam@1.0.vendor \
     vendor.mediatek.hardware.camera.atms@1.0.vendor \
     vendor.mediatek.hardware.camera.bgservice@1.0.vendor \
