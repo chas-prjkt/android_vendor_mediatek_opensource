@@ -33,6 +33,7 @@ PRODUCT_PACKAGES += \
     vendor.mediatek.hardware.engineermode@1.0.vendor \
     vendor.mediatek.hardware.engineermode@1.1.vendor \
     vendor.mediatek.hardware.engineermode@1.2.vendor \
+    vendor.mediatek.hardware.engineermode@1.3.vendor \
     vendor.mediatek.hardware.fm@1.0.vendor \
     vendor.mediatek.hardware.gnss@1.1.vendor \
     vendor.mediatek.hardware.gpu@1.0.vendor \
