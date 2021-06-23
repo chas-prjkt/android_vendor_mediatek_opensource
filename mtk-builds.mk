@@ -17,10 +17,12 @@ PRODUCT_PACKAGES += \
     libnvram \
     libladder \
     libfile_op \
+    libperfctl \
     ccci_mdinit \
     nvram_daemon \
     libnvram_sec \
     libcustom_nvram \
+    libperfctl_vendor \
     libmtkaudio_utils \
     libnvram_daemon_callback \
     vendor.mediatek.hardware.nvram@1.1-impl \
