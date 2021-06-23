@@ -81,6 +81,9 @@ PRODUCT_PACKAGES += \
     vendor.mediatek.hardware.pq@2.1.vendor \
     vendor.mediatek.hardware.pq@2.2.vendor \
     vendor.mediatek.hardware.pq@2.3.vendor \
+    vendor.mediatek.hardware.pq@2.4.vendor \
+    vendor.mediatek.hardware.pq@2.5.vendor \
+    vendor.mediatek.hardware.pq@2.6.vendor \
     vendor.mediatek.hardware.presence@1.0.vendor \
     vendor.mediatek.hardware.radio@1.1.vendor \
     vendor.mediatek.hardware.radio@2.0.vendor \
