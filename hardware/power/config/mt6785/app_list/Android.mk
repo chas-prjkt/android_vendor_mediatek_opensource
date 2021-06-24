@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 # Module name should match library/file name to be installed.
-LOCAL_MODULE := power_whitelist_cfg.xml
+LOCAL_MODULE := power_app_cfg.xml
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_MODULE_OWNER := mtk
 LOCAL_MODULE_TAGS := optional

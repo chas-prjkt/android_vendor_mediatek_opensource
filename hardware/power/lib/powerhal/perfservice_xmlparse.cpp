@@ -59,9 +59,9 @@ using ::android::hardware::power::V1_3::PowerHint;
 
 #define APP_LIST_XMLPATH        "/vendor/etc/power_app_cfg.xml"
 #define APP_LIST_XMLPATH_2      "/data/vendor/powerhal/power_app_cfg.xml"
-#define PACK_LIST_XMLPATH       "/vendor/etc/power_whitelist_cfg.xml"
-//#define PACK_LIST_XMLPATH_2     "/data/system/power_whitelist_cfg.xml"
-#define PACK_LIST_XMLPATH_2     "/data/vendor/powerhal/power_whitelist_cfg.xml"
+#define PACK_LIST_XMLPATH       "/vendor/etc/power_app_cfg.xml"
+//#define PACK_LIST_XMLPATH_2     "/data/system/power_app_cfg.xml"
+#define PACK_LIST_XMLPATH_2     "/data/vendor/powerhal/power_app_cfg.xml"
 
 #define CUS_SCN_TABLE           "/vendor/etc/powerscntbl.xml"
 #define CUS_CONFIG_TABLE        "/vendor/etc/powercontable.xml"
