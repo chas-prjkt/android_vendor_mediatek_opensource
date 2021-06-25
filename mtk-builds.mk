@@ -18,10 +18,12 @@ PRODUCT_PACKAGES += \
     libladder \
     libfile_op \
     libperfctl \
+    fuelgauged \
     ccci_mdinit \
     nvram_daemon \
     libnvram_sec \
     libcustom_nvram \
+    fuelgauged_nvram \
     libperfctl_vendor \
     libmtkaudio_utils \
     libnvram_daemon_callback \
