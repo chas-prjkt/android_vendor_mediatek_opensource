@@ -14,6 +14,7 @@ $(call inherit-product, vendor/mediatek/opensource/mtk-interfaces.mk)
 PRODUCT_PACKAGES += \
     libudf \
     libhwm \
+    ccci_fsd \
     libnvram \
     libladder \
     libfile_op \
