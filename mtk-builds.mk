@@ -17,6 +17,7 @@ PRODUCT_PACKAGES += \
     ccci_fsd \
     libnvram \
     libladder \
+    ccci_rpcd \
     libfile_op \
     libperfctl \
     fuelgauged \
