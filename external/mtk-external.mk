@@ -19,9 +19,11 @@ PRODUCT_PACKAGES += \
     ccci_mdinit \
     nvram_daemon \
     libnvram_sec \
+    libmtcloader \
     wlan_assistant \
     libstorage_otp \
     libthermalalgo \
+    thermal_manager \
     libcustom_nvram \
     fuelgauged_nvram \
     thermalloadalgod \
