@@ -8,6 +8,7 @@
 PRODUCT_PACKAGES += \
     libudf \
     libhwm \
+    libthha \
     ccci_fsd \
     libnvram \
     libladder \
@@ -20,8 +21,10 @@ PRODUCT_PACKAGES += \
     libnvram_sec \
     wlan_assistant \
     libstorage_otp \
+    libthermalalgo \
     libcustom_nvram \
     fuelgauged_nvram \
+    thermalloadalgod \
     libperfctl_vendor \
     libmtkaudio_utils \
     libnvram_daemon_callback \
