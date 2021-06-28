@@ -18,6 +18,7 @@ PRODUCT_PACKAGES += \
     ccci_mdinit \
     nvram_daemon \
     libnvram_sec \
+    wlan_assistant \
     libstorage_otp \
     libcustom_nvram \
     fuelgauged_nvram \
