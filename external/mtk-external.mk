@@ -18,6 +18,7 @@ PRODUCT_PACKAGES += \
     libfile_op \
     libperfctl \
     fuelgauged \
+    libion_mtk \
     ccci_mdinit \
     libmmprofile \
     nvram_daemon \
