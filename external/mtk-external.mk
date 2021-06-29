@@ -8,6 +8,7 @@
 PRODUCT_PACKAGES += \
     libudf \
     libhwm \
+    thermal \
     libthha \
     ccci_fsd \
     libnvram \
