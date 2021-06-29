@@ -29,6 +29,7 @@ PRODUCT_PACKAGES += \
     libthermalalgo \
     thermal_manager \
     libcustom_nvram \
+    libfft_vendor:64 \
     fuelgauged_nvram \
     thermalloadalgod \
     libperfctl_vendor \
