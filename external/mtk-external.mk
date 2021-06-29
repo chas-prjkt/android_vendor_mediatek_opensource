@@ -12,6 +12,7 @@ PRODUCT_PACKAGES += \
     libthha \
     ccci_fsd \
     libnvram \
+    libOpenCL \
     libladder \
     ccci_rpcd \
     libfile_op \
