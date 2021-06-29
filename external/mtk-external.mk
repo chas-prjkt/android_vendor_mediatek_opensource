@@ -19,6 +19,7 @@ PRODUCT_PACKAGES += \
     libperfctl \
     fuelgauged \
     ccci_mdinit \
+    libmmprofile \
     nvram_daemon \
     libnvram_sec \
     libmtcloader \
