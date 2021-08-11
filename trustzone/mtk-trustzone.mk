@@ -6,4 +6,5 @@
 
 # Trustzone
 PRODUCT_PACKAGES += \
+    libTEECommon \
     android.hardware.keymaster@4.0-service.beanpod
