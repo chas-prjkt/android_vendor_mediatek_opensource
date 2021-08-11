@@ -1,0 +1,19 @@
+cc_binary {
+    name: "android.hardware.keymaster@4.0-service.beanpod",
+    defaults: ["hidl_defaults"],
+    relative_install_path: "hw",
+    vendor: true,
+    init_rc: ["android.hardware.keymaster@4.0-service.beanpod.rc"],
+    srcs: ["service.cpp"],
+
+    shared_libs: [
+        "android.hardware.keymaster@4.0",
+        "libbase",
+        "libcutils",
+        "libhardware",
+        "libhidlbase",
+        "libkeymaster4",
+        "liblog",
+        "libutils",
+    ],
+}

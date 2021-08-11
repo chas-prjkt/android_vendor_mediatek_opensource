@@ -19,5 +19,8 @@ $(call inherit-product, vendor/mediatek/opensource/hardware/mtk-hardware.mk)
 # Call System (MTK)
 $(call inherit-product, vendor/mediatek/opensource/system/mtk-system.mk)
 
+# Call Trustzone (MTK)
+$(call inherit-product, vendor/mediatek/opensource/trustzone/mtk-trustzone.mk)
+
 # Call Interfaces (MTK)
 $(call inherit-product, vendor/mediatek/opensource/mtk-interfaces.mk)
