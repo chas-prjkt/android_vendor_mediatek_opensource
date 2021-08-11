@@ -6,5 +6,6 @@
 
 # Trustzone
 PRODUCT_PACKAGES += \
+    libimsg_log \
     libTEECommon \
     android.hardware.keymaster@4.0-service.beanpod
