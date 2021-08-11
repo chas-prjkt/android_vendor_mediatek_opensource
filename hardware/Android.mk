@@ -12,6 +12,9 @@ include $(MTK_HARD_ROOT_PATH)/consumerir/Android.mk
 # MTK Libdfps
 include $(MTK_HARD_ROOT_PATH)/libdfps/Android.mk
 
+# MTK Libkmsetkey
+include $(MTK_HARD_ROOT_PATH)/libkmsetkey/Android.mk
+
 # MTK Power
 include $(MTK_HARD_ROOT_PATH)/power/service/Power/1.3/Android.mk
 include $(MTK_HARD_ROOT_PATH)/power/service/main/Android.mk

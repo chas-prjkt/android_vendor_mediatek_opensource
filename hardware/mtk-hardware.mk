@@ -11,6 +11,8 @@ $(call inherit-product, vendor/mediatek/opensource/hardware/connectivity/connect
 PRODUCT_PACKAGES += \
     fstb.cfg \
     libpowerhal \
+    libkmsetkey \
+    kmsetkey_ca \
     libccci_util \
     libfpspolicy \
     power.default \
@@ -33,4 +35,6 @@ PRODUCT_PACKAGES += \
     android.hardware.usb@1.1-service-mediatek \
     vendor.mediatek.hardware.dfps@1.0-service \
     vendor.mediatek.hardware.mtkpower@1.0-impl \
-    vendor.mediatek.hardware.mtkpower@1.0-service
+    vendor.mediatek.hardware.mtkpower@1.0-service \
+    vendor.mediatek.hardware.keymaster_attestation@1.1-impl \
+    vendor.mediatek.hardware.keymaster_attestation@1.1-service
