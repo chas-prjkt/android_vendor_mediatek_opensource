@@ -8,4 +8,7 @@
 PRODUCT_PACKAGES += \
     libimsg_log \
     libTEECommon \
+    bp_kmsetkey_ca \
+    kmsetkey.beanpod \
+    kmsetkey.default \
     android.hardware.keymaster@4.0-service.beanpod
