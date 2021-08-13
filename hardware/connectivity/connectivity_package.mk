@@ -1,5 +1,6 @@
 # Connectivity Packages
 PRODUCT_PACKAGES += \
+    libwapi \
     libwifitest \
     libbt-vendor \
     libbluetooth_mtk \
