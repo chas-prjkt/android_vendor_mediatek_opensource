@@ -39,7 +39,6 @@
 //#define RPC_WAKE_LOCK() acquire_wake_lock(PARTIAL_WAKE_LOCK, RPC_WAKE_LOCK_NAME)
 //#define RPC_WAKE_UNLOCK() release_wake_lock(RPC_WAKE_LOCK_NAME)
 
-//#include <cutils/log.h>
 #include "ccci_rpcd_platform.h"
 #include "ccci_rpcd.h"
 

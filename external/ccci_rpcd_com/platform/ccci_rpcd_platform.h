@@ -17,7 +17,7 @@
 #ifndef __CCCI_RPCD_PLATFORM_H__
 #define __CCCI_RPCD_PLATFORM_H__
 
-#include <cutils/log.h>
+#include <log/log.h>
 #include <cutils/properties.h> /* bool type */
 
 #ifndef true

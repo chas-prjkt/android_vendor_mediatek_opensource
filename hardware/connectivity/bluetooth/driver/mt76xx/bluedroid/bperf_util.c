@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <signal.h>
 #include <string.h>
-#include <cutils/log.h>
+#include <log/log.h>
 
 #include "bperf_util.h"
 

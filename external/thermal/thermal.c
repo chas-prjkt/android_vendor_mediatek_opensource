@@ -24,7 +24,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <log/log.h>
-#include <cutils/log.h>
+#include <log/log.h>
 #include <ifcutils/ifc.h>
 #if defined(MTK_THERMAL_PA_VIA_ATCMD)
 #include <cutils/sockets.h>

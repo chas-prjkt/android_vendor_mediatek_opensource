@@ -77,7 +77,7 @@ typedef void* PVOID;
 #endif
 
 #else /* MTK_LINUX */
-#include <cutils/log.h>
+#include <log/log.h>
 
 #define BT_DRIVER_DEBUG       1
 #define LOG_ERR(f, ...)       ALOGE("%s: " f, __FUNCTION__, ##__VA_ARGS__)

@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include "power.h"
 
-#include <cutils/log.h>
+#include <log/log.h>
 #include "ccci_rpcd_platform.h"
 
 #define RPC_WAKE_LOCK_NAME "ccci_rpc"

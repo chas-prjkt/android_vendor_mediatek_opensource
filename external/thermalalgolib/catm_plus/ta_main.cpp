@@ -20,7 +20,7 @@
 #include <linux/input.h>
 #include <sys/resource.h>
 #include <cutils/properties.h>
-#include <cutils/log.h>
+#include <log/log.h>
 #include "ta_log.h"
 #include <string.h>
 #include <signal.h>

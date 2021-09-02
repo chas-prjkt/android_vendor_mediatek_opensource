@@ -23,7 +23,7 @@
 #include <stdarg.h>
 
 #include <utils/RefBase.h>
-#include <cutils/log.h>
+#include <log/log.h>
 #include <utils/Trace.h>
 
 #define ATRACE_TAG ATRACE_TAG_GRAPHICS

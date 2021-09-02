@@ -25,7 +25,6 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <fcntl.h>
-//#include <cutils/log.h>
 
 #ifdef __cplusplus
 extern "C" {

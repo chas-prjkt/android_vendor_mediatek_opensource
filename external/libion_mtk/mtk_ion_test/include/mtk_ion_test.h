@@ -19,7 +19,7 @@
 
 #include <sys/mman.h>
 #include <dlfcn.h>
-#include <cutils/log.h>
+#include <log/log.h>
 #include <cutils/atomic.h>
 #include <sys/types.h>
 #include <sys/stat.h>

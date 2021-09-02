@@ -30,7 +30,7 @@
 #include <net/if.h>
 #include <arpa/inet.h>
 
-#include <cutils/log.h>
+#include <log/log.h>
 #include <cutils/misc.h> /* load_file() */
 #include <libnvram.h>
 #include <Custom_NvRam_LID.h>
