@@ -6,10 +6,6 @@
 
 # Frameworks
 PRODUCT_PACKAGES += \
-    libwvhdcpext \
-    libdrmmtkutil \
-    libdrmctaplugin \
-    libdrmmtkwhitelist \
     libmtkavenhancements \
     libmtkapeextractor:64 \
     libmtkasfextractor:64 \
